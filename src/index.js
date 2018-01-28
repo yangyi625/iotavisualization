@@ -16,7 +16,7 @@ render(
           the <a href='https://iota.org/IOTA_Whitepaper.pdf'>white paper</a>.
         </p>
         <p>
-          The source code can be found on <a href="https://github.com/alongalky/iotavisualization/">github</a>.
+          The source code can be found on <a href="https://github.com/iotaledger/iotavisualization">github</a>.
         </p>
       <div style={{display: 'inline-block'}}>
         <TangleContainer />
