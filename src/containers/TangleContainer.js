@@ -88,9 +88,9 @@ sliderHandle.propTypes = {
 
 const TipAlgorithmLabel = ({selectedAlgorithm, onChange, algoKey}) =>
   <label className='container' key={algoKey}>
-    <p style={{fontSize: 10}}>
+    <div style={{fontSize: 10}}>
       {tipSelectionDictionary[algoKey].label}
-    </p>
+    </div>
     <input type='radio' name='radio' value={algoKey}
       checked={selectedAlgorithm === algoKey}
       onChange={onChange}
@@ -102,6 +102,39 @@ TipAlgorithmLabel.propTypes = {
   selectedAlgorithm: PropTypes.string.isRequired,
   onChange: PropTypes.any,
   algoKey: PropTypes.string.isRequired,
+};
+
+const SliderContainer = props =>
+  <div style={{display: 'table', width: '100%'}}>
+    <div className='left-slider-value'>
+      {props.min}
+    </div>
+    <div style={{
+      display: 'table-cell',
+    }}>
+      <Slider
+        min={props.min}
+        max={props.max}
+        defaultValue={props.defaultValue}
+        step={props.step}
+        marks={{}}
+        handle={props.handle}
+        disabled={props.disabled}
+        onChange={props.onChange} />
+    </div>
+    <div className='right-slider-value'>
+      {props.max}
+    </div>
+  </div>;
+
+SliderContainer.propTypes = {
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  defaultValue: PropTypes.number.isRequired,
+  step: PropTypes.number,
+  handle: PropTypes.any,
+  disabled: PropTypes.bool,
+  onChange: PropTypes.any,
 };
 
 class TangleContainer extends React.Component {
@@ -254,7 +287,7 @@ class TangleContainer extends React.Component {
           <div className='top-bar-row'>
             <div className='slider-title'>Number of transactions</div>
             <div className='slider-container'>
-              <Slider
+              <SliderContainer
                 min={nodeCountMin}
                 max={nodeCountMax}
                 defaultValue={nodeCountDefault}
@@ -275,7 +308,7 @@ class TangleContainer extends React.Component {
           <div className='top-bar-row'>
             <div className='slider-title'>Transaction rate (λ)</div>
             <div className='slider-container'>
-              <Slider
+              <SliderContainer
                 min={lambdaMin}
                 max={lambdaMax}
                 step={0.2}
@@ -297,7 +330,7 @@ class TangleContainer extends React.Component {
           <div className='top-bar-row'>
             <div className='slider-title'>alpha</div>
             <div className='slider-container'>
-              <Slider
+              <SliderContainer
                 min={alphaMin}
                 max={alphaMax}
                 step={0.001}
@@ -318,7 +351,6 @@ class TangleContainer extends React.Component {
             </div>
           </div>
         </div>
-      
         <Tangle links={this.state.links} nodes={this.state.nodes}
           nodeCount={6}
           width={width}
