@@ -21,12 +21,6 @@ render(
       <div style={{display: 'inline-block'}}>
         <TangleContainer />
       </div>
-      <div style={{
-        width: '80%',
-        paddingLeft: '20px',
-        paddingTop: '20px',
-        textAlign: 'justify'}}>
-      </div>
     </div>
   </Provider>,
   document.getElementById('container')
