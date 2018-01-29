@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './Tangle.css';
 import * as d3Scale from 'd3-scale';
 
 const Axis = ({x, endX, y, startVal, endVal, ticks}) => {

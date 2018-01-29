@@ -30,3 +30,56 @@ path.links.approved {
 .tip text {
   fill: black;
 }
+
+.top-bar-container {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 5px;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+}
+
+.top-bar-row {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  padding-top: 5px;
+  display: table;
+}
+
+.slider-title {
+  width: 160px;
+  display: table-cell;
+  text-align: right;
+  font-size: 11px;
+}
+
+.slider-container {
+  display: table-cell;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.tip-algo-label {
+  display: table-cell;
+  width: 170px;
+}
+
+/* Override radio-button.css */
+.container {
+  padding-left: 15px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.checkmark {
+  width: 10px;
+  height: 10px;
+}

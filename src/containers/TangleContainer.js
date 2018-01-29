@@ -12,6 +12,7 @@ import 'rc-tooltip/assets/bootstrap.css';
 import {getDescendants, getTips} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
+import '../components/Tangle.css';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -83,6 +84,24 @@ sliderHandle.propTypes = {
   value: PropTypes.number.isRequired,
   dragging: PropTypes.bool.isRequired,
   index: PropTypes.number.isRequired,
+};
+
+const TipAlgorithmLabel = ({selectedAlgorithm, onChange, algoKey}) =>
+  <label className='container' key={algoKey}>
+    <p style={{fontSize: 10}}>
+      {tipSelectionDictionary[algoKey].label}
+    </p>
+    <input type='radio' name='radio' value={algoKey}
+      checked={selectedAlgorithm === algoKey}
+      onChange={onChange}
+    />
+    <span className='checkmark'></span>
+  </label>;
+
+TipAlgorithmLabel.propTypes = {
+  selectedAlgorithm: PropTypes.string.isRequired,
+  onChange: PropTypes.any,
+  algoKey: PropTypes.string.isRequired,
 };
 
 class TangleContainer extends React.Component {
@@ -230,6 +249,75 @@ class TangleContainer extends React.Component {
 
     return (
       <div>
+        <div className='top-bar-container' style={{width}}>
+          <div className='top-bar-row'>
+            <div className='slider-title'>Number of transactions</div>
+            <div className='slider-container'>
+              <Slider
+                min={nodeCountMin}
+                max={nodeCountMax}
+                defaultValue={nodeCountDefault}
+                marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
+                handle={sliderHandle}
+                onChange={nodeCount => {
+                  this.setState(Object.assign(this.state, {nodeCount}));
+                  this.startNewTangle();
+                }} />
+            </div>
+            <div className='tip-algo-label'>
+              <TipAlgorithmLabel
+                algoKey='UR'
+                selectedAlgorithm={this.state.tipSelectionAlgorithm}
+                onChange={this.handleTipSelectionRadio.bind(this)} />
+            </div>
+          </div>
+          <div className='top-bar-row'>
+            <div className='slider-title'>Transaction rate (λ)</div>
+            <div className='slider-container'>
+              <Slider
+                min={lambdaMin}
+                max={lambdaMax}
+                step={0.2}
+                defaultValue={lambdaDefault}
+                marks={{[lambdaMin]: `${lambdaMin}`, [lambdaMax]: `${lambdaMax}`}}
+                handle={sliderHandle}
+                onChange={lambda => {
+                  this.setState(Object.assign(this.state, {lambda}));
+                  this.startNewTangle();
+                }} />
+            </div>
+            <div className='tip-algo-label'>
+              <TipAlgorithmLabel
+                algoKey='UWRW'
+                selectedAlgorithm={this.state.tipSelectionAlgorithm}
+                onChange={this.handleTipSelectionRadio.bind(this)} />
+            </div>
+          </div>
+          <div className='top-bar-row'>
+            <div className='slider-title'>alpha</div>
+            <div className='slider-container'>
+              <Slider
+                min={alphaMin}
+                max={alphaMax}
+                step={0.001}
+                defaultValue={alphaDefault}
+                marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
+                handle={sliderHandle}
+                disabled={this.state.tipSelectionAlgorithm !== 'WRW'}
+                onChange={alpha => {
+                  this.setState(Object.assign(this.state, {alpha}));
+                  this.startNewTangle();
+                }} />
+            </div>
+            <div className='tip-algo-label'>
+              <TipAlgorithmLabel
+                algoKey='WRW'
+                selectedAlgorithm={this.state.tipSelectionAlgorithm}
+                onChange={this.handleTipSelectionRadio.bind(this)} />
+            </div>
+          </div>
+        </div>
+      
         <Tangle links={this.state.links} nodes={this.state.nodes}
           nodeCount={6}
           width={width}
@@ -245,60 +333,6 @@ class TangleContainer extends React.Component {
           })}
           showLabels={this.state.nodeRadius > 11 ? true : false}
         />
-        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
-          <center>Number of transactions</center>
-          <Slider
-            min={nodeCountMin}
-            max={nodeCountMax}
-            defaultValue={nodeCountDefault}
-            marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
-            handle={sliderHandle}
-            onChange={nodeCount => {
-              this.setState(Object.assign(this.state, {nodeCount}));
-              this.startNewTangle();
-            }} />
-        </div>
-        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10}}>
-          <center>Transaction rate (λ)</center>
-          <Slider
-            min={lambdaMin}
-            max={lambdaMax}
-            step={0.2}
-            defaultValue={lambdaDefault}
-            marks={{[lambdaMin]: `${lambdaMin}`, [lambdaMax]: `${lambdaMax}`}}
-            handle={sliderHandle}
-            onChange={lambda => {
-              this.setState(Object.assign(this.state, {lambda}));
-              this.startNewTangle();
-            }} />
-        </div>
-        <div style={{width: width*0.8, marginLeft: 20, marginTop: 10, marginBottom: 30}}>
-          <center>alpha</center>
-          <Slider
-            min={alphaMin}
-            max={alphaMax}
-            step={0.001}
-            defaultValue={alphaDefault}
-            marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
-            handle={sliderHandle}
-            disabled={this.state.tipSelectionAlgorithm !== 'WRW'}
-            onChange={alpha => {
-              this.setState(Object.assign(this.state, {alpha}));
-              this.startNewTangle();
-            }} />
-        </div>
-        <div>
-          {Object.keys(tipSelectionDictionary).map(key =>
-            <label className='container' key={key}>
-              {tipSelectionDictionary[key].label}
-              <input type='radio' name='radio' value={key}
-                checked={this.state.tipSelectionAlgorithm === key}
-                onChange={this.handleTipSelectionRadio.bind(this)}
-              />
-              <span className='checkmark'></span>
-            </label>
-          )}
-        </div>
       </div>
     );
   }
