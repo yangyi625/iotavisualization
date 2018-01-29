@@ -35,7 +35,6 @@ path.links.approved {
   position: relative;
   margin: 0;
   padding: 0;
-  padding-top: 5px;
   padding-bottom: 5px;
   border-right: 1px solid black;
   border-left: 1px solid black;
@@ -48,8 +47,18 @@ path.links.approved {
   display: table;
 }
 
-.slider-title {
+.left-cell, .slider-title {
   width: 160px;
+}
+
+.left-cell {
+  position: absolute;
+  height: 100%;
+  padding-left: 10px;
+  border-right: 1px solid black;
+}
+
+.slider-title {
   display: table-cell;
   text-align: right;
   font-size: 11px;
@@ -59,6 +68,8 @@ path.links.approved {
   display: table-cell;
   padding-left: 20px;
   padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 0;
 }
 
 .left-slider-value, .right-slider-value {
@@ -76,9 +87,20 @@ path.links.approved {
   padding-left: 10px;
 }
 
+.right-cell, .tip-algo-label {
+  width: 170px;
+}
+
+.right-cell {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  padding-right: 10px;
+  border-left: 1px solid black;
+}
+
 .tip-algo-label {
   display: table-cell;
-  width: 170px;
 }
 
 /* Override radio-button.css */

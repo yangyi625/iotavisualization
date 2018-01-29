@@ -284,6 +284,8 @@ class TangleContainer extends React.Component {
     return (
       <div>
         <div className='top-bar-container' style={{width}}>
+          <div className='left-cell'></div>
+          <div className='right-cell'></div>
           <div className='top-bar-row'>
             <div className='slider-title'>Number of transactions</div>
             <div className='slider-container'>
