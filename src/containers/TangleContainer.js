@@ -50,9 +50,9 @@ const tipSelectionDictionary = {
   },
 };
 
-const leftMargin = 20;
-const rightMargin = 20;
-const bottomMargin = 200;
+const leftMargin = 50;
+const rightMargin = 80;
+const bottomMargin = 250;
 
 const nodeCountMin = 1;
 const nodeCountMax = 500;
@@ -202,17 +202,18 @@ class TangleContainer extends React.Component {
     }
   }
   xFromTime(time) {
-    const margin = 20;
-
     // Avoid edge cases with 0 or 1 nodes
     if (this.state.nodes.length < 2) {
-      return margin;
+      return leftMargin;
     }
 
     const maxTime = this.state.nodes[this.state.nodes.length-1].time;
 
     // Rescale nodes' x to cover [margin, width-margin]
-    return margin + (this.state.width - 2*margin)*(time/maxTime);
+    const scale = scaleLinear().domain([0, maxTime]);
+    scale.range([leftMargin, this.state.width - rightMargin]);
+
+    return scale(time);
   }
   mouseEntersNodeHandler(e) {
     const name = e.target.getAttribute('name');
@@ -322,6 +323,8 @@ class TangleContainer extends React.Component {
           nodeCount={6}
           width={width}
           height={height}
+          leftMargin={leftMargin}
+          rightMargin={rightMargin}
           nodeRadius={this.state.nodeRadius}
           mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}

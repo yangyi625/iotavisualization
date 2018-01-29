@@ -118,9 +118,9 @@ const Tangle = props =>
       </g>
       <g>
         <Axis
-          x={20}
-          endX={props.width - 20}
-          y={props.height-20}
+          x={props.leftMargin}
+          endX={props.width - props.rightMargin}
+          y={props.height - 20}
           ticks={8}
           startVal={0}
           endVal={props.nodes.length < 2 ? 1 : Math.max(...props.nodes.map(n => n.time))}
@@ -134,6 +134,8 @@ Tangle.propTypes = {
   nodes: PropTypes.array.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
+  leftMargin: PropTypes.number.isRequired,
+  rightMargin: PropTypes.number.isRequired,
   nodeRadius: PropTypes.number.isRequired,
   mouseEntersNodeHandler: PropTypes.func,
   mouseLeavesNodeHandler: PropTypes.func,
