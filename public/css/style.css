@@ -3,7 +3,7 @@ svg {
 }
 
 * {
-  font-family: 'PT Mono', monospace;
+  font-family: 'Play';
 }
 
 div.title-bar-container {
@@ -13,7 +13,7 @@ div.title-bar-container {
 }
 
 .left-title {
-  width: 350px;
+  width: 250px;
   float: left;
   font-size: 14px;
 }
@@ -25,7 +25,7 @@ div.title-bar-container {
 }
 
 .right-title {
-  margin-left: 350px;
+  margin-left: 250px;
   padding-top: 15px;
   font-size: 11px;
 }
