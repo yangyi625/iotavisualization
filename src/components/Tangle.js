@@ -10,11 +10,8 @@ const Axis = ({x, endX, y, startVal, endVal, ticks}) => {
   const tickValues = xScale.ticks(ticks);
 
   return (
-    <g fill='none' className='unselectable'>
+    <g fill='none' className='unselectable axis'>
       <text
-        stroke='#000'
-        fontSize='15'
-        textAnchor='middle'
         x={(x+endX)/2}
         y={y - tickSize}>
         Time
@@ -39,10 +36,7 @@ const Axis = ({x, endX, y, startVal, endVal, ticks}) => {
       {tickValues.map(value =>
         <text
           key={value}
-          fill='#000'
-          stroke='#000'
-          fontSize='15'
-          textAnchor='middle'
+          fontSize='12'
           x={xScale(value)}
           y={y + 3.2 * tickSize}>
           {value}
@@ -168,7 +162,7 @@ const Tangle = props =>
         <Axis
           x={props.leftMargin}
           endX={props.width - props.rightMargin}
-          y={props.height - 20}
+          y={props.height - 30}
           ticks={8}
           startVal={0}
           endVal={props.nodes.length < 2 ? 1 : Math.max(...props.nodes.map(n => n.time))}

@@ -121,6 +121,13 @@ path.links.approving {
   top: 3px;
 }
 
+.axis text {
+  fill: black;
+  stroke: none;
+  font-size: 15;
+  text-anchor: middle;
+}
+
 /* Override radio-button.css */
 .container {
   padding-left: 15px;
