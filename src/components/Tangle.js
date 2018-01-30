@@ -125,21 +125,26 @@ const Tangle = props =>
       <defs>
         <Marker color='black' id='arrowhead' nodeRadius={props.nodeRadius} />
         <Marker color='red' id='arrowhead-approved' nodeRadius={props.nodeRadius} />
+        <Marker color='blue' id='arrowhead-approving' nodeRadius={props.nodeRadius} />
       </defs>
       <g>
         {props.links.map(link =>
-          <path className={`links${props.approvedLinks.has(link) ? ' approved' : ''}`}
+          <path className={`links${props.approvedLinks.has(link) ? ' approved' :
+                                   props.approvingLinks.has(link) ? ' approving' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
             d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
-            markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' : 'url(#arrowhead)'}
+            markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' :
+                       props.approvingLinks.has(link) ? 'url(#arrowhead-approving)' :
+                       'url(#arrowhead)'}
           /> )}
       </g>
       <g>
         {props.nodes.map(node =>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
-            className={`
-               ${props.approvedNodes.has(node) ? 'approved' : ''}` +
-              `${props.tips.has(node) ? ' tip' : ''}`}>
+            className={
+              `${props.approvedNodes.has(node) ? 'approved' :
+                 props.approvingNodes.has(node) ? 'approving' :
+                 props.tips.has(node) ? 'tip' : ''}`}>
             {props.hoveredNode === node &&
               <g style={{opacity: 0.4}}>
                 <Node nodeRadius={props.nodeRadius*1.6} />
@@ -184,6 +189,8 @@ Tangle.propTypes = {
   mouseLeavesNodeHandler: PropTypes.func,
   approvedNodes: PropTypes.any,
   approvedLinks: PropTypes.any,
+  approvingNodes: PropTypes.any,
+  approvingLinks: PropTypes.any,
   hoveredNode: PropTypes.any,
 };
 

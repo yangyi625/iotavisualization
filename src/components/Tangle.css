@@ -15,6 +15,14 @@
   fill: white;
 }
 
+.approving rect {
+  fill: blue;
+}
+
+.approving text {
+  fill: white;
+}
+
 path.links  {
   stroke: black;
   stroke-width: 1px;
@@ -24,6 +32,11 @@ path.links  {
 path.links.approved {
   stroke-dasharray: none;
   stroke: red;
+}
+
+path.links.approving {
+  stroke-dasharray: none;
+  stroke: blue;
 }
 
 .tip rect {

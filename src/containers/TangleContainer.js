@@ -9,7 +9,7 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
-import {getDescendants, getTips} from '../shared/algorithms';
+import {getAncestors, getDescendants, getTips} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
@@ -288,6 +288,17 @@ class TangleContainer extends React.Component {
       root,
     });
   }
+  getApprovingNodes(root) {
+    if (!root) {
+      return {nodes: new Set(), links: new Set()};
+    }
+
+    return getAncestors({
+      nodes: this.state.nodes,
+      links: this.state.links,
+      root,
+    });
+  }
   handleTipSelectionRadio(event) {
     this.setState({
       tipSelectionAlgorithm: event.target.value,
@@ -298,6 +309,7 @@ class TangleContainer extends React.Component {
   render() {
     const {width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
+    const approving = this.getApprovingNodes(this.state.hoveredNode);
 
     return (
       <div>
@@ -382,6 +394,8 @@ class TangleContainer extends React.Component {
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
           approvedNodes={approved.nodes}
           approvedLinks={approved.links}
+          approvingNodes={approving.nodes}
+          approvingLinks={approving.links}
           hoveredNode={this.state.hoveredNode}
           tips={getTips({
             nodes: this.state.nodes,

@@ -1,4 +1,4 @@
-import {getDescendants, getTips, getApprovers, randomWalk, topologicalSort, calculateWeights, weightedRandomWalk} from '../../src/shared/algorithms';
+import {getDescendants, getTips, getApprovers, randomWalk, topologicalSort, calculateWeights, weightedRandomWalk, getAncestors} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -21,7 +21,7 @@ describe('Algorithms', () => {
       expect(descendants.nodes.size).toEqual(0);
       expect(descendants.links.size).toEqual(0);
     });
-    it('Returns only parent in two node graph', () => {
+    it('Returns only child in two node graph', () => {
       const nodes = initNodes(2);
       const links = [{source: 0, target: 1}];
       graphify({nodes, links});
@@ -33,7 +33,7 @@ describe('Algorithms', () => {
       expect(descendants.links.size).toEqual(1);
       expect(descendants.links.has(links[0])).toBeTruthy();
     });
-    it('Returns both parents in a three node graph', () => {
+    it('Returns both children in a three node graph', () => {
       const nodes = initNodes(3);
       const links = [{source: 0, target: 1}, {source: 0, target: 2}];
       graphify({nodes, links});
@@ -64,6 +64,61 @@ describe('Algorithms', () => {
       expect(descendants.links.size).toEqual(2);
       expect(descendants.links.has(links[2])).toBeTruthy();
       expect(descendants.links.has(links[3])).toBeTruthy();
+    });
+  });
+  describe('getAncestors', () => {
+    it('Returns empty set when node has no parents', () => {
+      const nodes = initNodes(1);
+      const links = [];
+
+      const ancestors = getAncestors({nodes, links, root: nodes[0]});
+
+      expect(ancestors.nodes.size).toEqual(0);
+      expect(ancestors.links.size).toEqual(0);
+    });
+    it('Returns only parent in two node graph', () => {
+      const nodes = initNodes(2);
+      const links = [{source: 0, target: 1}];
+      graphify({nodes, links});
+
+      const descendants = getAncestors({nodes, links, root: nodes[1]});
+
+      expect(descendants.nodes.size).toEqual(1);
+      expect(descendants.nodes.has(nodes[0])).toBeTruthy();
+      expect(descendants.links.size).toEqual(1);
+      expect(descendants.links.has(links[0])).toBeTruthy();
+    });
+    it('Returns both parents in a three node graph', () => {
+      const nodes = initNodes(3);
+      const links = [{source: 1, target: 0}, {source: 2, target: 0}];
+      graphify({nodes, links});
+
+      const ancestors = getAncestors({nodes, links, root: nodes[0]});
+
+      expect(ancestors.nodes.size).toEqual(2);
+      expect(ancestors.nodes.has(nodes[1])).toBeTruthy();
+      expect(ancestors.nodes.has(nodes[2])).toBeTruthy();
+      expect(ancestors.links.size).toEqual(2);
+      expect(ancestors.links.has(links[0])).toBeTruthy();
+      expect(ancestors.links.has(links[1])).toBeTruthy();
+    });
+    it('Returns only ancestors in a chain', () => {
+      const nodes = initNodes(5);
+      const links = [
+        {source: 0, target: 1},
+        {source: 1, target: 2},
+        {source: 2, target: 3},
+        {source: 3, target: 4},
+      ];
+      graphify({nodes, links});
+
+      const ancestors = getAncestors({nodes, links, root: nodes[2]});
+      expect(ancestors.nodes.size).toEqual(2);
+      expect(ancestors.nodes.has(nodes[0])).toBeTruthy();
+      expect(ancestors.nodes.has(nodes[1])).toBeTruthy();
+      expect(ancestors.links.size).toEqual(2);
+      expect(ancestors.links.has(links[0])).toBeTruthy();
+      expect(ancestors.links.has(links[1])).toBeTruthy();
     });
   });
   describe('getTips', () => {
