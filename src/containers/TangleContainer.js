@@ -112,6 +112,8 @@ const SliderContainer = props =>
     </div>
     <div style={{
       display: 'table-cell',
+      position: 'relative',
+      top: '5px',
     }}>
       <Slider
         min={props.min}
@@ -121,7 +123,21 @@ const SliderContainer = props =>
         marks={{}}
         handle={props.handle}
         disabled={props.disabled}
-        onChange={props.onChange} />
+        onChange={props.onChange}
+        trackStyle={{visibility: 'hidden'}}
+        railStyle={{
+          borderRadius: 0,
+          height: '1.2px',
+          backgroundColor: 'black',
+        }}
+        handleStyle={{
+          borderWidth: 0,
+          backgroundColor: 'black',
+          width: '10px',
+          height: '10px',
+          marginTop: '-4.5px',
+        }}
+        />
     </div>
     <div className='right-slider-value'>
       {props.max}
