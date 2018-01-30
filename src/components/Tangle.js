@@ -102,11 +102,18 @@ const Tangle = props =>
             className={`
                ${props.approvedNodes.has(node) ? 'approved' : ''}` +
               `${props.tips.has(node) ? ' tip' : ''}`}>
-            <circle className='node' stroke='black' strokeWidth='1px'
-              fill='white' r={props.nodeRadius} name={node.name}
+            <rect width={props.nodeRadius} height={props.nodeRadius}
+              x={-props.nodeRadius/2}
+              y={-props.nodeRadius/2}
+              rx={props.nodeRadius/5}
+              ry={props.nodeRadius/5}
+              stroke='black'
+              strokeWidth='1px'
+              fill='white'
+              name={node.name}
               onMouseEnter={props.mouseEntersNodeHandler}
               onMouseLeave={props.mouseLeavesNodeHandler} >
-            </circle>
+            </rect>
             {props.showLabels && <text
               className='unselectable'
               fill='#666' fontFamily='Helvetica'

@@ -7,7 +7,7 @@
   user-select:none;
 }
 
-.approved circle {
+.approved rect {
   fill: red;
 }
 
@@ -23,7 +23,7 @@ path.links.approved {
   stroke: red;
 }
 
-.tip circle {
+.tip rect {
   fill: lightgray;
 }
 

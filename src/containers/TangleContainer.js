@@ -17,8 +17,9 @@ import '../components/Tangle.css';
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
 
-const nodeRadiusMax = 18;
-const nodeRadiusMin = 8;
+const nodeRadiusMax = 25;
+const nodeRadiusMin = 13;
+const showLabelsMinimumRadius = 21;
 const getNodeRadius = nodeCount => {
   const smallNodeCount = 20;
   const largeNodeCount = 100;
@@ -368,7 +369,7 @@ class TangleContainer extends React.Component {
             nodes: this.state.nodes,
             links: this.state.links,
           })}
-          showLabels={this.state.nodeRadius > 11 ? true : false}
+          showLabels={this.state.nodeRadius > showLabelsMinimumRadius ? true : false}
         />
       </div>
     );
