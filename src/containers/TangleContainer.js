@@ -51,8 +51,8 @@ const tipSelectionDictionary = {
   },
 };
 
-const leftMargin = 50;
-const rightMargin = 80;
+const leftMargin = 10;
+const rightMargin = 10;
 const bottomMargin = 250;
 
 const nodeCountMin = 1;
@@ -252,16 +252,17 @@ class TangleContainer extends React.Component {
     }
   }
   xFromTime(time) {
+    const padding = this.state.nodeRadius;
     // Avoid edge cases with 0 or 1 nodes
     if (this.state.nodes.length < 2) {
-      return leftMargin;
+      return padding;
     }
 
     const maxTime = this.state.nodes[this.state.nodes.length-1].time;
 
     // Rescale nodes' x to cover [margin, width-margin]
     const scale = scaleLinear().domain([0, maxTime]);
-    scale.range([leftMargin, this.state.width - rightMargin]);
+    scale.range([padding, this.state.width - padding]);
 
     return scale(time);
   }
