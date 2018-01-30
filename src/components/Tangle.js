@@ -80,6 +80,27 @@ Marker.propTypes = {
   nodeRadius: PropTypes.number.isRequired,
 };
 
+const Node = ({nodeRadius, mouseEntersNodeHandler, mouseLeavesNodeHandler, name}) =>
+  <rect width={nodeRadius} height={nodeRadius}
+    x={-nodeRadius/2}
+    y={-nodeRadius/2}
+    rx={nodeRadius/5}
+    ry={nodeRadius/5}
+    stroke='black'
+    strokeWidth='1px'
+    fill='white'
+    name={name}
+    onMouseEnter={mouseEntersNodeHandler}
+    onMouseLeave={mouseLeavesNodeHandler} >
+  </rect>;
+
+Node.propTypes = {
+  nodeRadius: PropTypes.number.isRequired,
+  mouseEntersNodeHandler: PropTypes.any,
+  mouseLeavesNodeHandler: PropTypes.any,
+  name: PropTypes.string,
+};
+
 const Tangle = props =>
   <div>
     <svg width={props.width} height={props.height}>
@@ -102,18 +123,16 @@ const Tangle = props =>
             className={`
                ${props.approvedNodes.has(node) ? 'approved' : ''}` +
               `${props.tips.has(node) ? ' tip' : ''}`}>
-            <rect width={props.nodeRadius} height={props.nodeRadius}
-              x={-props.nodeRadius/2}
-              y={-props.nodeRadius/2}
-              rx={props.nodeRadius/5}
-              ry={props.nodeRadius/5}
-              stroke='black'
-              strokeWidth='1px'
-              fill='white'
+            {props.hoveredNode === node &&
+              <g style={{opacity: 0.4}}>
+                <Node nodeRadius={props.nodeRadius*1.6} />
+                <Node nodeRadius={props.nodeRadius*1.3} />
+              </g>}
+            <Node
+              nodeRadius={props.nodeRadius}
               name={node.name}
-              onMouseEnter={props.mouseEntersNodeHandler}
-              onMouseLeave={props.mouseLeavesNodeHandler} >
-            </rect>
+              mouseEntersNodeHandler={props.mouseEntersNodeHandler}
+              mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
             {props.showLabels && <text
               className='unselectable'
               fill='#666' fontFamily='Helvetica'
@@ -148,6 +167,7 @@ Tangle.propTypes = {
   mouseLeavesNodeHandler: PropTypes.func,
   approvedNodes: PropTypes.any,
   approvedLinks: PropTypes.any,
+  hoveredNode: PropTypes.any,
 };
 
 export default Tangle;

@@ -365,6 +365,7 @@ class TangleContainer extends React.Component {
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
           approvedNodes={approved.nodes}
           approvedLinks={approved.links}
+          hoveredNode={this.state.hoveredNode}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,
