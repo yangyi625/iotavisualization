@@ -16,10 +16,13 @@
 }
 
 path.links  {
-  stroke: green;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-dasharray: 4,2;
 }
 
 path.links.approved {
+  stroke-dasharray: none;
   stroke: red;
 }
 

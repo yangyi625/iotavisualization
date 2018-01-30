@@ -67,9 +67,10 @@ const Marker = ({color, id, nodeRadius}) =>
     viewBox='0 -5 10 10'
     refX={0}
     refY={0}
-    markerWidth={5}
-    markerHeight={3}
+    markerWidth={10}
+    markerHeight={6}
     fill={color}
+    markerUnits='userSpaceOnUse'
     orient='auto' >
     <path d='M0,-5L10,0L0,5'/>
   </marker>;
@@ -122,7 +123,7 @@ const Tangle = props =>
   <div>
     <svg width={props.width} height={props.height}>
       <defs>
-        <Marker color='green' id='arrowhead' nodeRadius={props.nodeRadius} />
+        <Marker color='black' id='arrowhead' nodeRadius={props.nodeRadius} />
         <Marker color='red' id='arrowhead-approved' nodeRadius={props.nodeRadius} />
       </defs>
       <g>
@@ -130,7 +131,7 @@ const Tangle = props =>
           <path className={`links${props.approvedLinks.has(link) ? ' approved' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
             d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
-            strokeWidth='2' markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' : 'url(#arrowhead)'}
+            markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' : 'url(#arrowhead)'}
           /> )}
       </g>
       <g>
