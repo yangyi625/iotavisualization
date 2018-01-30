@@ -352,14 +352,14 @@ class TangleContainer extends React.Component {
                   this.startNewTangle();
                 }} />
             </div>
-            <div className='tip-algo-label'>
+            <div className='tip-algo-label' style={{visibility: 'hidden'}}>
               <TipAlgorithmLabel
                 algoKey='UWRW'
                 selectedAlgorithm={this.state.tipSelectionAlgorithm}
                 onChange={this.handleTipSelectionRadio.bind(this)} />
             </div>
           </div>
-          <div className='top-bar-row'>
+          <div className='top-bar-row' style={{display: 'none'}}>
             <div className='slider-title'>alpha</div>
             <div className='slider-container'>
               <SliderContainer
