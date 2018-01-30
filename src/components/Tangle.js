@@ -65,7 +65,7 @@ const Marker = ({color, id, nodeRadius}) =>
   <marker
     id={id}
     viewBox='0 -5 10 10'
-    refX={nodeRadius+20}
+    refX={0}
     refY={0}
     markerWidth={5}
     markerHeight={3}
@@ -101,6 +101,23 @@ Node.propTypes = {
   name: PropTypes.string,
 };
 
+const generateLinkPath = ({link, nodeRadius}) => {
+  const arrowheadSpace = nodeRadius;
+
+  const pathVector = {
+    x: link.target.x - link.source.x,
+    y: link.target.y - link.source.y,
+  };
+  const radius = Math.sqrt(Math.pow(pathVector.x, 2) + Math.pow(pathVector.y, 2));
+
+  const scalingFactor = (radius - arrowheadSpace) / radius;
+  const arrowX = link.source.x + scalingFactor * pathVector.x;
+  const arrowY = link.source.y + scalingFactor * pathVector.y;
+
+  return `M ${link.source.x} ${link.source.y} ` +
+         `L ${arrowX} ${arrowY}`;
+};
+
 const Tangle = props =>
   <div>
     <svg width={props.width} height={props.height}>
@@ -112,8 +129,7 @@ const Tangle = props =>
         {props.links.map(link =>
           <path className={`links${props.approvedLinks.has(link) ? ' approved' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
-            d={ `M ${link.source.x} ${link.source.y} ` +
-              `L ${link.target.x} ${link.target.y}`}
+            d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
             strokeWidth='2' markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' : 'url(#arrowhead)'}
           /> )}
       </g>
