@@ -53,7 +53,7 @@ const tipSelectionDictionary = {
 
 const leftMargin = 10;
 const rightMargin = 10;
-const bottomMargin = 250;
+const bottomMargin = 190;
 
 const nodeCountMin = 1;
 const nodeCountMax = 500;
@@ -200,7 +200,7 @@ class TangleContainer extends React.Component {
   updateWindowDimensions() {
     this.setState({
       width: window.innerWidth - leftMargin - rightMargin,
-      height: window.innerHeight - bottomMargin,
+      height: window.innerWidth < 768 ? window.innerHeight : window.innerHeight - bottomMargin,
     }, () => {
       this.recalculateFixedPositions();
       this.force

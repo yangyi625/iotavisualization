@@ -13,7 +13,7 @@ To run locally during development, use:
 npm run dev-server
 ```
 
-and go to `localhost:9999` in your browser.
+and go to `localhost:9000` in your browser.
 
 ## Testing & Linting
 Before submitting PRs, make sure the code passes tests and lints by running the following:
