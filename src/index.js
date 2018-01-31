@@ -24,9 +24,7 @@ render(
           </p>
         </div>
       </div>
-      <div style={{display: 'inline-block'}}>
-        <TangleContainer />
-      </div>
+      <TangleContainer />
     </div>
   </Provider>,
   document.getElementById('container')
