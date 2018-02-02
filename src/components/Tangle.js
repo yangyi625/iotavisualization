@@ -141,11 +141,11 @@ const Tangle = props =>
                  props.tips.has(node) ? 'tip' : ''}`}>
             {props.hoveredNode === node &&
               <g style={{opacity: 0.4}}>
-                <Node nodeRadius={props.nodeRadius*1.6} />
-                <Node nodeRadius={props.nodeRadius*1.3} />
+                <Node nodeRadius={props.nodeRadius*1.9} />
+                <Node nodeRadius={props.nodeRadius*1.7} />
               </g>}
             <Node
-              nodeRadius={props.nodeRadius}
+              nodeRadius={props.hoveredNode === node ? props.nodeRadius * 1.5 : props.nodeRadius}
               name={node.name}
               mouseEntersNodeHandler={props.mouseEntersNodeHandler}
               mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
@@ -154,7 +154,7 @@ const Tangle = props =>
               fill='#666' fontFamily='Helvetica'
               alignmentBaseline='middle' textAnchor='middle'
               pointerEvents='none'>
-              {node.name}
+              {props.hoveredNode === node ? 'C:' + props.hoveredNodeWeight : node.name}
             </text>}
           </g>)}
       </g>
