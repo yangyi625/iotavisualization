@@ -3,7 +3,9 @@ import {choose, isTip, randomWalk, weightedRandomWalk, calculateWeights} from '.
 export const uniformRandom = ({nodes, links}) => {
   const candidates = nodes.filter(node => isTip({links, node}));
 
-  return candidates.length === 0 ? [] : [choose(candidates), choose(candidates)];
+  return candidates.length === 0 ? [] : [
+    {tip: choose(candidates), path: []},
+    {tip: choose(candidates), path: []}];
 };
 
 export const unWeightedMCMC = ({nodes, links}) => {

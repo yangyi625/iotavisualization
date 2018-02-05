@@ -53,7 +53,7 @@ export const getTips = ({nodes, links}) => {
   return new Set(tips);
 };
 
-export const getApprovers = ({links, node}) => {
+export const getDirectApprovers = ({links, node}) => {
   return links
     .filter(link => link.target === node)
     .map(link => link.source);
@@ -61,14 +61,19 @@ export const getApprovers = ({links, node}) => {
 
 export const randomWalk = ({links, start}) => {
   let particle = start;
+  const path = [start];
 
   while (!isTip({links, node: particle})) {
-    const approvers = getApprovers({links, node: particle});
+    const approvers = getDirectApprovers({links, node: particle});
 
     particle = choose(approvers);
+    path.push(particle);
   }
 
-  return particle;
+  return {
+    tip: particle,
+    path,
+  };
 };
 
 const weightedChoose = (arr, weights) => {
@@ -88,9 +93,10 @@ const weightedChoose = (arr, weights) => {
 
 export const weightedRandomWalk = ({nodes, links, start, alpha}) => {
   let particle = start;
+  const path = [start];
 
   while (!isTip({links, node: particle})) {
-    const approvers = getApprovers({links, node: particle});
+    const approvers = getDirectApprovers({links, node: particle});
 
     const cumWeights = approvers.map(node => node.cumWeight);
 
@@ -101,9 +107,13 @@ export const weightedRandomWalk = ({nodes, links, start, alpha}) => {
     const weights = normalizedWeights.map(w => Math.exp(alpha * w));
 
     particle = weightedChoose(approvers, weights);
+    path.push(particle);
   }
 
-  return particle;
+  return {
+    tip: particle,
+    path,
+  };
 };
 
 const getChildrenLists = ({nodes, links}) => {

@@ -75,16 +75,18 @@ Marker.propTypes = {
   nodeRadius: PropTypes.number.isRequired,
 };
 
-const Node = ({nodeRadius, mouseEntersNodeHandler, mouseLeavesNodeHandler, name}) =>
+const Node = ({nodeRadius, mouseEntersNodeHandler, mouseLeavesNodeHandler, name,
+  stroke='black', strokeWidth='1px', fill='white', style}) =>
   <rect width={nodeRadius} height={nodeRadius}
     x={-nodeRadius/2}
     y={-nodeRadius/2}
     rx={nodeRadius/5}
     ry={nodeRadius/5}
-    stroke='black'
-    strokeWidth='1px'
-    fill='white'
+    stroke={stroke}
+    strokeWidth={strokeWidth}
+    fill={fill}
     name={name}
+    style={style}
     onMouseEnter={mouseEntersNodeHandler}
     onMouseLeave={mouseLeavesNodeHandler} >
   </rect>;
@@ -94,6 +96,10 @@ Node.propTypes = {
   mouseEntersNodeHandler: PropTypes.any,
   mouseLeavesNodeHandler: PropTypes.any,
   name: PropTypes.string,
+  stroke: PropTypes.string,
+  strokeWidth: PropTypes.string,
+  fill: PropTypes.string,
+  style: PropTypes.object,
 };
 
 const generateLinkPath = ({link, nodeRadius}) => {
@@ -135,11 +141,16 @@ const Tangle = props =>
       <g>
         {props.nodes.map(node =>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
-            className={
+            className={'node ' +
               `${props.approvedNodes.has(node) ? 'approved' :
                  props.approvingNodes.has(node) ? 'approving' :
                  props.tips.has(node) ? 'tip' : ''}`}>
             {props.hoveredNode === node &&
+              <g style={{opacity: 0.4}}>
+                <Node nodeRadius={props.nodeRadius*1.6} />
+                <Node nodeRadius={props.nodeRadius*1.3} />
+              </g>}
+            {props.newTransaction === node &&
               <g style={{opacity: 0.4}}>
                 <Node nodeRadius={props.nodeRadius*1.6} />
                 <Node nodeRadius={props.nodeRadius*1.3} />
@@ -150,12 +161,22 @@ const Tangle = props =>
               mouseEntersNodeHandler={props.mouseEntersNodeHandler}
               mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
             {props.showLabels && <text
-              className='unselectable'
-              fill='#666' fontFamily='Helvetica'
-              alignmentBaseline='middle' textAnchor='middle'
-              pointerEvents='none'>
+              alignmentBaseline='middle' textAnchor='middle'>
               {node.name}
             </text>}
+            {props.walker === node &&
+              <g className='walker'>
+                <Node nodeRadius={props.nodeRadius*1.6} />
+              </g>}
+            {props.walkerDirectApproversProbabilities[node.name] &&
+              <g className='walker-approver'>
+                <Node nodeRadius={props.nodeRadius*1.9} />
+                {props.showLabels && <text
+                  alignmentBaseline='middle' textAnchor='middle'
+                  x={10} y={-30}>
+                  {props.walkerDirectApproversProbabilities[node.name]}
+                </text>}
+              </g>}
           </g>)}
       </g>
       <g>
@@ -186,6 +207,9 @@ Tangle.propTypes = {
   approvingNodes: PropTypes.any,
   approvingLinks: PropTypes.any,
   hoveredNode: PropTypes.any,
+  walker: PropTypes.any,
+  walkerDirectApproversProbabilities: PropTypes.any,
+  newTransaction: PropTypes.any,
 };
 
 export default Tangle;

@@ -9,13 +9,19 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
-import {getAncestors, getDescendants, getTips} from '../shared/algorithms';
+import {getAncestors, getDirectApprovers, getDescendants, getTips} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
+
+const delay = ms => new Promise(r => {
+  setTimeout(r, ms);
+});
+
+const oneByOne = true;
 
 const nodeRadiusMax = 25;
 const nodeRadiusMin = 13;
@@ -137,7 +143,7 @@ const SliderContainer = props =>
           height: '10px',
           marginTop: '-4.5px',
         }}
-        />
+      />
     </div>
     <div className='right-slider-value'>
       {props.max}
@@ -167,7 +173,8 @@ class TangleContainer extends React.Component {
       width: 300, // default values
       height: 300,
       nodeRadius: getNodeRadius(nodeCountDefault),
-      tipSelectionAlgorithm: 'UR',
+      tipSelectionAlgorithm: 'UWRW',
+      tangleId: 0,
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
@@ -181,6 +188,8 @@ class TangleContainer extends React.Component {
       for (let node of this.state.nodes) {
         node.y = Math.max(this.state.nodeRadius, Math.min(this.state.height - this.state.nodeRadius, node.y));
       }
+
+      this.recalculateFixedPositions();
 
       this.setState({
         links: this.state.links,
@@ -212,6 +221,47 @@ class TangleContainer extends React.Component {
       this.force.restart().alpha(1);
     });
   }
+  animateWalk({node, tangle, tangleId}) {
+    const walk = path =>
+      path.reduce((promises, particle) =>
+        promises
+          .then(() => {
+            if (this.state.tangleId !== tangleId) {
+              return Promise.resolve();
+            }
+
+            let newLink = null;
+
+            if (particle === path[path.length - 1]) {
+              // Last node in path. Add link if it's not already in the list
+              newLink = tangle.links.find(link =>
+                link.source === node &&
+                link.target === particle);
+
+              if (this.state.links.includes(newLink)) {
+                newLink = null;
+              }
+            }
+
+            return new Promise((resolve, reject) => {
+              this.setState({
+                walker: particle,
+                links: newLink ? [...this.state.links, newLink] : this.state.links,
+              }, resolve);
+            });
+        }).then(() => delay(1000)),
+        Promise.resolve());
+
+    return node.paths.reduce((promise, path) =>
+        promise.then(() => walk(path)), Promise.resolve())
+      .then(() => {
+        return new Promise(resolve => {
+          this.setState({
+            walker: null,
+          }, resolve);
+        });
+      });
+  }
   startNewTangle() {
     const nodeRadius = getNodeRadius(this.state.nodeCount);
     const tangle = generateTangle({
@@ -222,6 +272,9 @@ class TangleContainer extends React.Component {
       tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm].algo,
     });
 
+    const tangleId = this.state.tangleId + 1;
+    this.setState({tangleId});
+
     const {width, height} = this.state;
 
     for (let node of tangle.nodes) {
@@ -231,22 +284,43 @@ class TangleContainer extends React.Component {
 
     this.force.stop();
 
-    this.setState({
-      nodes: tangle.nodes,
-      links: tangle.links,
-      nodeRadius,
-    }, () => {
-      // Set all nodes' x by time value after state has been set
-      this.recalculateFixedPositions();
-    });
+    if (oneByOne) {
+      const update = nodeCount => new Promise(resolve => {
+        if (tangleId !== this.state.tangleId) {
+          return;
+        }
+
+        this.setState({
+          nodes: tangle.nodes.slice(0, nodeCount),
+          links: tangle.links.filter(link => link.source && parseInt(link.source.name) < nodeCount-1),
+        }, () => {
+          this.force.restart().alpha(0.2);
+          resolve(
+            this.animateWalk({
+              node: tangle.nodes[nodeCount-1],
+              tangle,
+              tangleId,
+            }));
+        });
+      });
+
+      [...Array(tangle.nodes.length).keys()].reduce((promises, nodeCount) =>
+        promises.then(() => update(nodeCount+1)),
+        Promise.resolve());
+    } else {
+      this.setState({
+        nodes: tangle.nodes,
+        links: tangle.links,
+        nodeRadius,
+      }, () => {
+        // Set all nodes' x by time value after state has been set
+        this.recalculateFixedPositions();
+      });
+    }
 
     this.force.restart().alpha(1);
   }
   recalculateFixedPositions() {
-    // Set genesis's y to center
-    const genesisNode = this.state.nodes[0];
-    genesisNode.fx = this.setState.height / 2;
-
     for (let node of this.state.nodes) {
       node.fx = this.xFromTime(node.time);
     }
@@ -298,6 +372,20 @@ class TangleContainer extends React.Component {
       links: this.state.links,
       root,
     });
+  }
+  getDirectApproversProbabilities(node) {
+    if (!node) {
+      return {};
+    }
+    const simTime = this.state.nodes[this.state.nodes.length-1].time;
+
+    const approvers = getDirectApprovers({links: this.state.links, node})
+      .filter(approver => approver.time < simTime - 1);
+
+    return approvers.reduce((ans, node) => ({
+      ...ans,
+      [node.name]: approvers.length === 1 ? '100%' : `1/${approvers.length}`,
+    }), {});
   }
   handleTipSelectionRadio(event) {
     this.setState({
@@ -402,6 +490,9 @@ class TangleContainer extends React.Component {
             links: this.state.links,
           })}
           showLabels={this.state.nodeRadius > showLabelsMinimumRadius ? true : false}
+          walker={this.state.walker}
+          walkerDirectApproversProbabilities={this.getDirectApproversProbabilities(this.state.walker)}
+          newTransaction={oneByOne && this.state.nodes[this.state.nodes.length-1]}
         />
       </div>
     );

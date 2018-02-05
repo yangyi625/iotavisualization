@@ -1,4 +1,4 @@
-import {getDescendants, getTips, getApprovers, randomWalk, topologicalSort, calculateWeights, weightedRandomWalk, getAncestors} from '../../src/shared/algorithms';
+import {getDescendants, getTips, getDirectApprovers, randomWalk, topologicalSort, calculateWeights, weightedRandomWalk, getAncestors} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -165,13 +165,13 @@ describe('Algorithms', () => {
       expect(tips.has(nodes[2])).toBeTruthy();
     });
   });
-  describe('getApprovers', () => {
+  describe('getDirectApprovers', () => {
     it('returns no approvers for 1 node graph', () => {
       const nodes = initNodes(1);
       const links = [];
       graphify({nodes, links});
 
-      const approvers = getApprovers({links, node: nodes[0]});
+      const approvers = getDirectApprovers({links, node: nodes[0]});
 
       expect(approvers).toHaveLength(0);
     });
@@ -183,7 +183,7 @@ describe('Algorithms', () => {
       ];
       graphify({nodes, links});
 
-      const approvers = getApprovers({links, node: nodes[0]});
+      const approvers = getDirectApprovers({links, node: nodes[0]});
 
       expect(approvers).toHaveLength(2);
       expect(approvers).toContain(nodes[1]);
@@ -197,7 +197,7 @@ describe('Algorithms', () => {
       ];
       graphify({nodes, links});
 
-      const approvers = getApprovers({links, node: nodes[0]});
+      const approvers = getDirectApprovers({links, node: nodes[0]});
 
       expect(approvers).toHaveLength(1);
       expect(approvers).toContain(nodes[1]);
@@ -215,7 +215,7 @@ describe('Algorithms', () => {
 
       const tip = randomWalk({links, start: nodes[1]});
 
-      expect(tip).toEqual(nodes[2]);
+      expect(tip.tip).toEqual(nodes[2]);
     });
     it('stays on branch, two possible outcomes', () => {
       const nodes = initNodes(5);
@@ -229,7 +229,25 @@ describe('Algorithms', () => {
 
       const tip = randomWalk({links, start: nodes[1]});
 
-      expect([nodes[2], nodes[4]].find(x => x === tip)).toBeTruthy();
+      expect([nodes[2], nodes[4]].find(x => x === tip.tip)).toBeTruthy();
+    });
+    it('returns correct path for chain', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 2},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      const path = randomWalk({links, start: nodes[0]}).path;
+
+      expect(path).toHaveLength(5);
+      for (let i=0; i<path.length; i++) {
+        expect(path[i].name).toEqual(i);
+      }
     });
   });
   describe('topologicalSort ', () => {
@@ -324,7 +342,7 @@ describe('Algorithms', () => {
 
       const tip = weightedRandomWalk({nodes, links, start: nodes[0], alpha: 1});
 
-      expect(tip).toEqual(nodes[6]);
+      expect(tip.tip).toEqual(nodes[6]);
     });
     it('stays on branch, single possible outcome', () => {
       const nodes = initNodes(4);
@@ -338,7 +356,7 @@ describe('Algorithms', () => {
 
       const tip = weightedRandomWalk({links, start: nodes[1]});
 
-      expect(tip).toEqual(nodes[2]);
+      expect(tip.tip).toEqual(nodes[2]);
     });
     it('stays on branch, two possible outcomes', () => {
       const nodes = initNodes(5);
@@ -353,7 +371,25 @@ describe('Algorithms', () => {
 
       const tip = weightedRandomWalk({links, start: nodes[1]});
 
-      expect([nodes[2], nodes[4]].find(x => x === tip)).toBeTruthy();
+      expect([nodes[2], nodes[4]].find(x => x === tip.tip)).toBeTruthy();
+    });
+    it('returns correct path for chain', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 2},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      const path = weightedRandomWalk({links, start: nodes[0]}).path;
+
+      expect(path).toHaveLength(5);
+      for (let i=0; i<path.length; i++) {
+        expect(path[i].name).toEqual(i);
+      }
     });
   });
 });

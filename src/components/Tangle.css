@@ -1,4 +1,8 @@
-.unselectable {
+.node text {
+  pointer-events: none;
+}
+
+.unselectable, .node text {
   -webkit-user-select:none;
   -khtml-user-select:none;
   -moz-user-select:none;
@@ -21,6 +25,20 @@
 
 .approving text {
   fill: white;
+}
+
+.walker, .walker-approver {
+  pointer-events: none;
+}
+
+.walker rect {
+  fill: green;
+  opacity: 0.6;
+}
+
+.walker-approver rect {
+  fill: green;
+  opacity: 0.1;
 }
 
 path.links  {

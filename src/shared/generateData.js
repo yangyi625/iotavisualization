@@ -5,6 +5,7 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1, alpha=0.5, tipSele
   const genesis = {
     name: '0',
     time: 0,
+    paths: [],
   };
 
   let nodes = [genesis];
@@ -35,9 +36,11 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1, alpha=0.5, tipSele
     });
 
     if (tips.length > 0) {
-      links.push({source: node, target: tips[0]});
-      if (tips.length > 1 && tips[0].name !== tips[1].name) {
-        links.push({source: node, target: tips[1]});
+      links.push({source: node, target: tips[0].tip});
+      node.paths = tips.map(tip => tip.path);
+
+      if (tips.length > 1 && tips[0].tip.name !== tips[1].tip.name) {
+        links.push({source: node, target: tips[1].tip});
       }
     }
   };

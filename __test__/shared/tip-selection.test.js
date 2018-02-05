@@ -51,8 +51,8 @@ describe('Tip selection algorithms', () => {
           const tips = uniformRandom({nodes, links});
 
           expect(tips).toHaveLength(2);
-          expect(tips[0]).toEqual(nodes[1]);
-          expect(tips[1]).toEqual(nodes[1]);
+          expect(tips[0].tip).toEqual(nodes[1]);
+          expect(tips[1].tip).toEqual(nodes[1]);
         });
       });
     });
@@ -76,8 +76,8 @@ describe('Tip selection algorithms', () => {
             const tips = algo.algo({nodes, links, start: nodes[0]});
 
             expect(tips).toHaveLength(2);
-            expect(tips[0]).toEqual(nodes[0]);
-            expect(tips[1]).toEqual(nodes[0]);
+            expect(tips[0].tip).toEqual(nodes[0]);
+            expect(tips[1].tip).toEqual(nodes[0]);
           });
           it('Stays on genesis branch when given two disconnected components', () => {
             const nodes = initNodes(5);
@@ -91,8 +91,8 @@ describe('Tip selection algorithms', () => {
             const tips = algo.algo({nodes, links});
 
             expect(tips).toHaveLength(2);
-            expect(tips[0]).toEqual(nodes[2]);
-            expect(tips[1]).toEqual(nodes[2]);
+            expect(tips[0].tip).toEqual(nodes[2]);
+            expect(tips[1].tip).toEqual(nodes[2]);
           });
         });
       });
