@@ -26,6 +26,7 @@
     "d3-scale": "^1.0.7",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
+    "jStat": "^1.7.1",
     "jest": "^22.1.4",
     "jstat": "^1.7.1",
     "prop-types": "^15.6.0",
@@ -40,7 +41,5 @@
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.0"
   },
-  "dependencies": {
-    "jStat": "^1.7.1"
-  }
+  "dependencies": {}
 }
