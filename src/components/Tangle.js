@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Tooltip from 'rc-tooltip';
 import * as d3Scale from 'd3-scale';
 
 const Axis = ({x, endX, y, startVal, endVal, ticks}) => {
@@ -134,6 +135,13 @@ const Tangle = props =>
       </g>
       <g>
         {props.nodes.map(node =>
+          <Tooltip
+            visible={props.hoveredNode === node}
+            placement="top"
+            overlay={
+              <div>Cumulative weight: {props.hoveredNodeWeight}<br />
+              Score: {props.hoveredNodeScore}</div>}
+            >
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
             className={
               `${props.approvedNodes.has(node) ? 'approved' :
@@ -141,11 +149,11 @@ const Tangle = props =>
                  props.tips.has(node) ? 'tip' : ''}`}>
             {props.hoveredNode === node &&
               <g style={{opacity: 0.4}}>
-                <Node nodeRadius={props.nodeRadius*1.9} />
-                <Node nodeRadius={props.nodeRadius*1.7} />
+                <Node nodeRadius={props.nodeRadius*1.6} />
+                <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
             <Node
-              nodeRadius={props.hoveredNode === node ? props.nodeRadius * 1.5 : props.nodeRadius}
+              nodeRadius={props.nodeRadius}
               name={node.name}
               mouseEntersNodeHandler={props.mouseEntersNodeHandler}
               mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
@@ -154,9 +162,10 @@ const Tangle = props =>
               fill='#666' fontFamily='Helvetica'
               alignmentBaseline='middle' textAnchor='middle'
               pointerEvents='none'>
-              {props.hoveredNode === node ? 'C:' + props.hoveredNodeWeight : node.name}
+              {node.name}
             </text>}
-          </g>)}
+          </g>
+          </Tooltip>)}
       </g>
       <g>
         <Axis

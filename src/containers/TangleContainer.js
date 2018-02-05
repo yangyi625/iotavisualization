@@ -398,6 +398,7 @@ class TangleContainer extends React.Component {
           approvingLinks={approving.links}
           hoveredNode={this.state.hoveredNode}
           hoveredNodeWeight={approving.nodes.size + 1} // Assume each node weight is 1
+          hoveredNodeScore={approved.nodes.size + 1}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,
