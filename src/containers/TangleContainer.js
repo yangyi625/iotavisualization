@@ -428,7 +428,7 @@ class TangleContainer extends React.Component {
       this.state.nodes.filter(node =>
         node !== this.state.nodes[this.state.nodes.length-1] &&
         node.time + 1 > this.state.nodes[this.state.nodes.length-1].time);
-    
+
     return (
       <div>
         <div className='top-bar-container' style={{width}}>

@@ -134,7 +134,8 @@ const Tangle = props =>
           <path className={`links${props.approvedLinks.has(link) ? ' approved' :
                                    props.pathLinks.includes(link) ? ' approved walk-path' :
                                    props.directWalkerApproverLinks.includes(link) ? ' approving walk-path' :
-                                   props.approvingLinks.has(link) ? ' approving' : ''}`}
+                                   props.approvingLinks.has(link) ? ' approving' : ''}` +
+                                   `${props.invisibleNodes.includes(link.source) ? ' invisible' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
             d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
             markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' :
@@ -159,16 +160,17 @@ const Tangle = props =>
                 <Node nodeRadius={props.nodeRadius*1.6} />
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
-            <Node
-              className={props.invisibleNodes.includes(node) ? 'invisible ' : ''}
-              nodeRadius={props.nodeRadius}
-              name={node.name}
-              mouseEntersNodeHandler={props.mouseEntersNodeHandler}
-              mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
-            {props.showLabels && <text
-              alignmentBaseline='middle' textAnchor='middle'>
-              {node.name}
-            </text>}
+            <g className={props.invisibleNodes.includes(node) ? 'invisible ' : ''}>
+              <Node
+                nodeRadius={props.nodeRadius}
+                name={node.name}
+                mouseEntersNodeHandler={props.mouseEntersNodeHandler}
+                mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
+              {props.showLabels && <text
+                alignmentBaseline='middle' textAnchor='middle'>
+                {node.name}
+              </text>}
+            </g>
             {props.walker === node &&
               <g className='walker'>
                 <Node nodeRadius={props.nodeRadius*1.6} />
@@ -176,11 +178,11 @@ const Tangle = props =>
             {props.walkerDirectApproversProbabilities[node.name] &&
               <g className='walker-approver'>
                 <Node nodeRadius={props.nodeRadius*1.9} />
-                {props.showLabels && <text
+                <text
                   alignmentBaseline='middle' textAnchor='middle'
                   x={10} y={-30}>
                   {props.walkerDirectApproversProbabilities[node.name]}
-                </text>}
+                </text>
               </g>}
           </g>)}
       </g>
