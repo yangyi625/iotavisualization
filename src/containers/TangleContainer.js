@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Tangle from '../components/Tangle';
 import {connect} from 'react-redux';
 import * as d3Force from 'd3-force';
-import {scaleLinear} from 'd3-scale';
+import {scaleLinear, scaleLog} from 'd3-scale';
 import {generateTangle} from '../shared/generateData';
 import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
@@ -21,7 +21,20 @@ const delay = ms => new Promise(r => {
   setTimeout(r, ms);
 });
 
-const oneByOne = true;
+const delayByAnimationSpeed = (animationSpeed, factor=1) =>
+  delay(factor * getDelayFactor(animationSpeed));
+
+const getDelayFactor = animationSpeed => {
+  const scale = scaleLog()
+    .domain([0.01, 1])
+    .range([maxDelayInMs, minDelayInMs]);
+
+  return scale(Math.max(0.01, animationSpeed));
+};
+
+const defaultAnimationSpeed = 0.5;
+const maxDelayInMs = 5 * 1000;
+const minDelayInMs = 50;
 
 const nodeRadiusMax = 25;
 const nodeRadiusMin = 13;
@@ -175,6 +188,8 @@ class TangleContainer extends React.Component {
       nodeRadius: getNodeRadius(nodeCountDefault),
       tipSelectionAlgorithm: 'UWRW',
       tangleId: 0,
+      animationSpeed: defaultAnimationSpeed,
+      oneByOne: true,
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
@@ -249,7 +264,7 @@ class TangleContainer extends React.Component {
                 links: newLink ? [...this.state.links, newLink] : this.state.links,
               }, resolve);
             });
-        }).then(() => delay(1000)),
+        }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed)),
         Promise.resolve());
 
     return node.paths.reduce((promise, path) =>
@@ -284,7 +299,7 @@ class TangleContainer extends React.Component {
 
     this.force.stop();
 
-    if (oneByOne) {
+    if (this.state.oneByOne) {
       const update = nodeCount => new Promise(resolve => {
         if (tangleId !== this.state.tangleId) {
           return;
@@ -411,7 +426,6 @@ class TangleContainer extends React.Component {
                 min={nodeCountMin}
                 max={nodeCountMax}
                 defaultValue={nodeCountDefault}
-                marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
                 handle={sliderHandle}
                 onChange={nodeCount => {
                   this.setState(Object.assign(this.state, {nodeCount}));
@@ -433,7 +447,6 @@ class TangleContainer extends React.Component {
                 max={lambdaMax}
                 step={0.2}
                 defaultValue={lambdaDefault}
-                marks={{[lambdaMin]: `${lambdaMin}`, [lambdaMax]: `${lambdaMax}`}}
                 handle={sliderHandle}
                 onChange={lambda => {
                   this.setState(Object.assign(this.state, {lambda}));
@@ -470,6 +483,24 @@ class TangleContainer extends React.Component {
                 onChange={this.handleTipSelectionRadio.bind(this)} />
             </div>
           </div>
+          <div className='top-bar-row'>
+            <div className='slider-title'>Animation speed</div>
+            <div className='slider-container'>
+              <SliderContainer
+                min={0}
+                max={1}
+                step={0.01}
+                defaultValue={0.5}
+                handle={sliderHandle}
+                onChange={animationSpeed => {
+                  this.setState(Object.assign(this.state, {
+                    oneByOne: animationSpeed < 1,
+                    animationSpeed,
+                  }));
+                }} />
+            </div>
+            <div className='tip-algo-label'></div>
+          </div>
         </div>
         <Tangle links={this.state.links} nodes={this.state.nodes}
           nodeCount={6}
@@ -492,7 +523,7 @@ class TangleContainer extends React.Component {
           showLabels={this.state.nodeRadius > showLabelsMinimumRadius ? true : false}
           walker={this.state.walker}
           walkerDirectApproversProbabilities={this.getDirectApproversProbabilities(this.state.walker)}
-          newTransaction={oneByOne && this.state.nodes[this.state.nodes.length-1]}
+          newTransaction={this.state.oneByOne && this.state.nodes[this.state.nodes.length-1]}
         />
       </div>
     );
