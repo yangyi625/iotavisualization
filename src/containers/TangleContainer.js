@@ -324,7 +324,10 @@ class TangleContainer extends React.Component {
 
       [...Array(tangle.nodes.length).keys()].reduce((promises, nodeCount) =>
         promises.then(() => update(nodeCount+1)),
-        Promise.resolve());
+        Promise.resolve())
+        .then(() => {
+          this.setState({path: [], walker: null});
+        });
     } else {
       this.setState({
         nodes: tangle.nodes,
@@ -424,7 +427,7 @@ class TangleContainer extends React.Component {
     const directWalkerApproverLinks = this.state.links.filter(link =>
       link.target === this.state.walker &&
       walkerDirectApproversProbabilities[link.source.name] !== undefined);
-    const invisibleNodes = !this.state.oneByOne ? [] :
+    const invisibleNodes = !this.state.walker ? [] :
       this.state.nodes.filter(node =>
         node !== this.state.nodes[this.state.nodes.length-1] &&
         node.time + 1 > this.state.nodes[this.state.nodes.length-1].time);
