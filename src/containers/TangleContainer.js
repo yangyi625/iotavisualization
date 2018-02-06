@@ -541,7 +541,7 @@ class TangleContainer extends React.Component {
           showLabels={this.nodeRadius() > showLabelsMinimumRadius ? true : false}
           walker={this.state.walker}
           walkerDirectApproversProbabilities={walkerDirectApproversProbabilities}
-          newTransaction={this.state.oneByOne && this.state.nodes[this.state.nodes.length-1]}
+          newTransaction={this.state.walker && this.state.nodes[this.state.nodes.length-1]}
           pathLinks={pathLinks}
           directWalkerApproverLinks={directWalkerApproverLinks}
           invisibleNodes={invisibleNodes}
