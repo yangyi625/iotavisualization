@@ -423,6 +423,10 @@ class TangleContainer extends React.Component {
     const directWalkerApproverLinks = this.state.links.filter(link =>
       link.target === this.state.walker &&
       walkerDirectApproversProbabilities[link.source.name] !== undefined);
+    const invisibleNodes = !this.state.oneByOne ? [] :
+      this.state.nodes.filter(node =>
+        node !== this.state.nodes[this.state.nodes.length-1] &&
+        node.time + 1 > this.state.nodes[this.state.nodes.length-1].time);
 
     return (
       <div>
@@ -536,6 +540,7 @@ class TangleContainer extends React.Component {
           newTransaction={this.state.oneByOne && this.state.nodes[this.state.nodes.length-1]}
           pathLinks={pathLinks}
           directWalkerApproverLinks={directWalkerApproverLinks}
+          invisibleNodes={invisibleNodes}
         />
       </div>
     );

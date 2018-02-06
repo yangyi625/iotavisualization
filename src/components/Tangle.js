@@ -76,7 +76,7 @@ Marker.propTypes = {
 };
 
 const Node = ({nodeRadius, mouseEntersNodeHandler, mouseLeavesNodeHandler, name,
-  stroke='black', strokeWidth='1px', fill='white', style}) =>
+  stroke='black', strokeWidth='1px', fill='white', style, className}) =>
   <rect width={nodeRadius} height={nodeRadius}
     x={-nodeRadius/2}
     y={-nodeRadius/2}
@@ -87,6 +87,7 @@ const Node = ({nodeRadius, mouseEntersNodeHandler, mouseLeavesNodeHandler, name,
     fill={fill}
     name={name}
     style={style}
+    className={className}
     onMouseEnter={mouseEntersNodeHandler}
     onMouseLeave={mouseLeavesNodeHandler} >
   </rect>;
@@ -100,6 +101,7 @@ Node.propTypes = {
   strokeWidth: PropTypes.string,
   fill: PropTypes.string,
   style: PropTypes.object,
+  className: PropTypes.string,
 };
 
 const generateLinkPath = ({link, nodeRadius}) => {
@@ -158,6 +160,7 @@ const Tangle = props =>
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
             <Node
+              className={props.invisibleNodes.includes(node) ? 'invisible ' : ''}
               nodeRadius={props.nodeRadius}
               name={node.name}
               mouseEntersNodeHandler={props.mouseEntersNodeHandler}

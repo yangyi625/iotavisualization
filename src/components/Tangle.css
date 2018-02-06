@@ -11,6 +11,11 @@
   user-select:none;
 }
 
+.invisible {
+  stroke-dasharray: 2,1;
+  opacity: 0.3;
+}
+
 .approved rect {
   fill: red;
 }
