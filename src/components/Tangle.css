@@ -57,6 +57,10 @@ path.links.approving {
   stroke: blue;
 }
 
+path.links.walk-path {
+  stroke-width: 4px;
+}
+
 .tip rect {
   fill: lightgray;
 }

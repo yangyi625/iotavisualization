@@ -130,6 +130,8 @@ const Tangle = props =>
       <g>
         {props.links.map(link =>
           <path className={`links${props.approvedLinks.has(link) ? ' approved' :
+                                   props.pathLinks.includes(link) ? ' approved walk-path' :
+                                   props.directWalkerApproverLinks.includes(link) ? ' approving walk-path' :
                                    props.approvingLinks.has(link) ? ' approving' : ''}`}
             key={`${link.source.name}->${link.target.name}`}
             d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
@@ -210,6 +212,8 @@ Tangle.propTypes = {
   walker: PropTypes.any,
   walkerDirectApproversProbabilities: PropTypes.any,
   newTransaction: PropTypes.any,
+  pathLinks: PropTypes.array,
+  directWalkerApproverLinks: PropTypes.array,
 };
 
 export default Tangle;

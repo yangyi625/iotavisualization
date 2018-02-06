@@ -32,9 +32,9 @@ const getDelayFactor = animationSpeed => {
   return scale(Math.max(0.01, animationSpeed));
 };
 
-const defaultAnimationSpeed = 0.5;
+const defaultAnimationSpeed = 0.7;
 const maxDelayInMs = 5 * 1000;
-const minDelayInMs = 50;
+const minDelayInMs = 5;
 
 const nodeRadiusMax = 25;
 const nodeRadiusMin = 13;
@@ -76,10 +76,10 @@ const bottomMargin = 190;
 
 const nodeCountMin = 1;
 const nodeCountMax = 500;
-const nodeCountDefault = 20;
+const nodeCountDefault = 50;
 const lambdaMin = 0.1;
 const lambdaMax = 50;
-const lambdaDefault = 1.5;
+const lambdaDefault = 2;
 const alphaMin = 0;
 const alphaMax = 5;
 const alphaDefault = 0.5;
@@ -185,11 +185,11 @@ class TangleContainer extends React.Component {
       alpha: alphaDefault,
       width: 300, // default values
       height: 300,
-      nodeRadius: getNodeRadius(nodeCountDefault),
       tipSelectionAlgorithm: 'UWRW',
       tangleId: 0,
       animationSpeed: defaultAnimationSpeed,
       oneByOne: true,
+      path: [],
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
@@ -201,7 +201,7 @@ class TangleContainer extends React.Component {
 
       // restrict nodes to window area
       for (let node of this.state.nodes) {
-        node.y = Math.max(this.state.nodeRadius, Math.min(this.state.height - this.state.nodeRadius, node.y));
+        node.y = Math.max(this.nodeRadius(), Math.min(this.state.height - this.nodeRadius(), node.y));
       }
 
       this.recalculateFixedPositions();
@@ -211,6 +211,9 @@ class TangleContainer extends React.Component {
         nodes: this.state.nodes,
       });
     });
+  }
+  nodeRadius() {
+    return getNodeRadius(this.state.nodes ? this.state.nodes.length : 1);
   }
   componentWillUnmount() {
     this.force.stop();
@@ -228,17 +231,17 @@ class TangleContainer extends React.Component {
     }, () => {
       this.recalculateFixedPositions();
       this.force
-        .force('no_collision', d3Force.forceCollide().radius(this.state.nodeRadius * 2).strength(0.01).iterations(15))
+        .force('no_collision', d3Force.forceCollide().radius(this.nodeRadius() * 2).strength(0.01).iterations(15))
         .force('pin_y_to_center', d3Force.forceY().y(d => this.state.height / 2).strength(0.1))
         .force('pin_x_to_time', d3Force.forceX().x(d => this.xFromTime(d.time)).strength(1))
-        .force('link', d3Force.forceLink().links(this.state.links).strength(0.5).distance(this.state.nodeRadius*3)); // strength in [0,1]
+        .force('link', d3Force.forceLink().links(this.state.links).strength(0.5).distance(this.nodeRadius() * 3)); // strength in [0,1]
 
       this.force.restart().alpha(1);
     });
   }
   animateWalk({node, tangle, tangleId}) {
     const walk = path =>
-      path.reduce((promises, particle) =>
+      path.reduce((promises, particle, index) =>
         promises
           .then(() => {
             if (this.state.tangleId !== tangleId) {
@@ -262,13 +265,14 @@ class TangleContainer extends React.Component {
               this.setState({
                 walker: particle,
                 links: newLink ? [...this.state.links, newLink] : this.state.links,
+                path: path.slice(0, index+1),
               }, resolve);
             });
         }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed)),
         Promise.resolve());
 
     return node.paths.reduce((promise, path) =>
-        promise.then(() => walk(path)), Promise.resolve())
+        promise.then(() => this.state.oneByOne && walk(path)), Promise.resolve())
       .then(() => {
         return new Promise(resolve => {
           this.setState({
@@ -278,12 +282,11 @@ class TangleContainer extends React.Component {
       });
   }
   startNewTangle() {
-    const nodeRadius = getNodeRadius(this.state.nodeCount);
     const tangle = generateTangle({
       nodeCount: this.state.nodeCount,
       lambda: this.state.lambda,
       alpha: this.state.alpha,
-      nodeRadius,
+      nodeRadius: this.nodeRadius(),
       tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm].algo,
     });
 
@@ -326,7 +329,6 @@ class TangleContainer extends React.Component {
       this.setState({
         nodes: tangle.nodes,
         links: tangle.links,
-        nodeRadius,
       }, () => {
         // Set all nodes' x by time value after state has been set
         this.recalculateFixedPositions();
@@ -341,7 +343,7 @@ class TangleContainer extends React.Component {
     }
   }
   xFromTime(time) {
-    const padding = this.state.nodeRadius;
+    const padding = this.nodeRadius();
     // Avoid edge cases with 0 or 1 nodes
     if (this.state.nodes.length < 2) {
       return padding;
@@ -413,6 +415,14 @@ class TangleContainer extends React.Component {
     const {width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
+    const pathLinks = this.state.links.filter(link =>
+      this.state.path.some((node, i) =>
+        this.state.path[i] === link.target && this.state.path[i+1] === link.source));
+
+    const walkerDirectApproversProbabilities = this.getDirectApproversProbabilities(this.state.walker);
+    const directWalkerApproverLinks = this.state.links.filter(link =>
+      link.target === this.state.walker &&
+      walkerDirectApproversProbabilities[link.source.name] !== undefined);
 
     return (
       <div>
@@ -490,7 +500,7 @@ class TangleContainer extends React.Component {
                 min={0}
                 max={1}
                 step={0.01}
-                defaultValue={0.5}
+                defaultValue={defaultAnimationSpeed}
                 handle={sliderHandle}
                 onChange={animationSpeed => {
                   this.setState(Object.assign(this.state, {
@@ -508,7 +518,7 @@ class TangleContainer extends React.Component {
           height={height}
           leftMargin={leftMargin}
           rightMargin={rightMargin}
-          nodeRadius={this.state.nodeRadius}
+          nodeRadius={this.nodeRadius()}
           mouseEntersNodeHandler={this.mouseEntersNodeHandler.bind(this)}
           mouseLeavesNodeHandler={this.mouseLeavesNodeHandler.bind(this)}
           approvedNodes={approved.nodes}
@@ -520,10 +530,12 @@ class TangleContainer extends React.Component {
             nodes: this.state.nodes,
             links: this.state.links,
           })}
-          showLabels={this.state.nodeRadius > showLabelsMinimumRadius ? true : false}
+          showLabels={this.nodeRadius() > showLabelsMinimumRadius ? true : false}
           walker={this.state.walker}
-          walkerDirectApproversProbabilities={this.getDirectApproversProbabilities(this.state.walker)}
+          walkerDirectApproversProbabilities={walkerDirectApproversProbabilities}
           newTransaction={this.state.oneByOne && this.state.nodes[this.state.nodes.length-1]}
+          pathLinks={pathLinks}
+          directWalkerApproverLinks={directWalkerApproverLinks}
         />
       </div>
     );
