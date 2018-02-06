@@ -415,9 +415,10 @@ class TangleContainer extends React.Component {
     const {width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
-    const pathLinks = this.state.links.filter(link =>
-      this.state.path.some((node, i) =>
-        this.state.path[i] === link.target && this.state.path[i+1] === link.source));
+    const pathLinks = !this.state.oneByOne ? [] :
+      this.state.links.filter(link =>
+        this.state.path.some((node, i) =>
+          this.state.path[i] === link.target && this.state.path[i+1] === link.source));
 
     const walkerDirectApproversProbabilities = this.getDirectApproversProbabilities(this.state.walker);
     const directWalkerApproverLinks = this.state.links.filter(link =>
@@ -427,7 +428,7 @@ class TangleContainer extends React.Component {
       this.state.nodes.filter(node =>
         node !== this.state.nodes[this.state.nodes.length-1] &&
         node.time + 1 > this.state.nodes[this.state.nodes.length-1].time);
-
+    
     return (
       <div>
         <div className='top-bar-container' style={{width}}>
