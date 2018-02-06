@@ -37,13 +37,20 @@
 }
 
 .walker rect {
-  fill: green;
-  opacity: 0.6;
+  fill: none;
+  stroke-width: 5px;
+  stroke: blue;
+  rx: 50%;
+  ry: 50%;
 }
 
 .walker-approver rect {
-  fill: green;
-  opacity: 0.1;
+  fill: blue;
+  opacity: 1;
+}
+
+.walker-approver text {
+  fill: white;
 }
 
 path.links  {

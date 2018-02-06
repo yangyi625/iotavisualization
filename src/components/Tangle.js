@@ -146,10 +146,7 @@ const Tangle = props =>
       <g>
         {props.nodes.map(node =>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
-            className={'node ' +
-              `${props.approvedNodes.has(node) ? 'approved' :
-                 props.approvingNodes.has(node) ? 'approving' :
-                 props.tips.has(node) ? 'tip' : ''}`}>
+            className='node'>
             {props.hoveredNode === node &&
               <g style={{opacity: 0.4}}>
                 <Node nodeRadius={props.nodeRadius*1.6} />
@@ -160,7 +157,10 @@ const Tangle = props =>
                 <Node nodeRadius={props.nodeRadius*1.6} />
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
-            <g className={props.invisibleNodes.includes(node) ? 'invisible ' : ''}>
+            <g className={`${props.invisibleNodes.includes(node) ? 'invisible ' : ''}` +
+              `${props.approvedNodes.has(node) ? 'approved' :
+                 props.approvingNodes.has(node) ? 'approving' :
+                 props.tips.has(node) ? 'tip' : ''}`}>
               <Node
                 nodeRadius={props.nodeRadius}
                 name={node.name}
@@ -179,8 +179,7 @@ const Tangle = props =>
               <g className='walker-approver'>
                 <Node nodeRadius={props.nodeRadius*1.9} />
                 <text
-                  alignmentBaseline='middle' textAnchor='middle'
-                  x={10} y={-30}>
+                  alignmentBaseline='middle' textAnchor='middle'>
                   {props.walkerDirectApproversProbabilities[node.name]}
                 </text>
               </g>}
