@@ -70,10 +70,10 @@ const sliderHandle = props => {
   const {value, dragging, index, ...restProps} = props;
   return (
     <Tooltip
-      prefixCls="rc-slider-tooltip"
+      prefixCls='rc-slider-tooltip'
       overlay={value}
       visible={dragging}
-      placement="top"
+      placement='top'
       key={index}
     >
       <Handle value={value} {...restProps} />
