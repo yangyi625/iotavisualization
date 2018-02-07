@@ -509,7 +509,7 @@ class TangleContainer extends React.Component {
                 onChange={this.handleTipSelectionRadio.bind(this)} />
             </div>
           </div>
-          <div className='top-bar-row' style={{display: 'none'}}>
+          <div className='top-bar-row'>
             <div className='slider-title'>alpha</div>
             <div className='slider-container'>
               <SliderContainer
