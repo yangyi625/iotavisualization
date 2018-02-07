@@ -34,7 +34,7 @@ const getDelayFactor = animationSpeed => {
 
 const defaultAnimationSpeed = 0.7;
 const maxDelayInMs = 5 * 1000;
-const minDelayInMs = 5;
+const minDelayInMs = 1;
 
 const nodeRadiusMax = 25;
 const nodeRadiusMin = 13;
@@ -268,18 +268,49 @@ class TangleContainer extends React.Component {
                 path: path.slice(0, index+1),
               }, resolve);
             });
-        }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed)),
+        }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed))
+        .then(() => {
+          if (index === path.length - 1) {
+            return;
+          }
+
+          const fps = 30.0;
+          const durationInMs = 0.8 * getDelayFactor(this.state.animationSpeed);
+          const frameCount = Math.floor(fps * durationInMs / 1000.0);
+          const timeBetweenFramesInMs = durationInMs / frameCount;
+          const scale = scaleLinear()
+            .domain([0, frameCount-1])
+            .range([0, 1]);
+
+          return [...Array(frameCount).keys()].reduce((promise, frame) => {
+            return promise
+              .then(() => {
+                if (this.state.tangleId !== tangleId) {
+                  return Promise.resolve();
+                }
+                return new Promise(resolve => {
+                  this.setState({
+                    walkerAnimationDestination: path[index+1],
+                    walkerAnimationPosition: scale(frame),
+                  }, resolve);
+                }).then(() => delay(timeBetweenFramesInMs));
+              });
+          }, Promise.resolve());
+        }),
         Promise.resolve());
 
     return node.paths.reduce((promise, path) =>
-        promise.then(() => this.state.oneByOne && walk(path)), Promise.resolve())
-      .then(() => {
-        return new Promise(resolve => {
-          this.setState({
-            walker: null,
-          }, resolve);
-        });
-      });
+        promise.then(() => this.state.oneByOne &&
+          walk(path)
+            .then(() => delayByAnimationSpeed(this.state.animationSpeed, 1.5))
+            .then(() => {
+              return new Promise(resolve => {
+                this.setState({
+                  walker: null,
+                  walkerAnimationDestination: null,
+                }, resolve);
+              });
+            })), Promise.resolve());
   }
   startNewTangle() {
     const tangle = generateTangle({
@@ -545,6 +576,8 @@ class TangleContainer extends React.Component {
           pathLinks={pathLinks}
           directWalkerApproverLinks={directWalkerApproverLinks}
           invisibleNodes={invisibleNodes}
+          walkerAnimationDestination={this.state.walkerAnimationDestination}
+          walkerAnimationPosition={this.state.walkerAnimationPosition}
         />
       </div>
     );

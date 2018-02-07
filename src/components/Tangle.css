@@ -37,11 +37,10 @@
 }
 
 .walker rect {
-  fill: none;
-  stroke-width: 5px;
-  stroke: blue;
+  fill: blue;
   rx: 50%;
   ry: 50%;
+  opacity: 0.5;
 }
 
 .walker-approver rect {

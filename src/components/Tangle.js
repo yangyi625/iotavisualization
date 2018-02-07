@@ -121,6 +121,13 @@ const generateLinkPath = ({link, nodeRadius}) => {
          `L ${arrowX} ${arrowY}`;
 };
 
+const getWalkerPosition = ({walker, position, destination}) => {
+  const dx = destination ? (destination.x - walker.x) * position : 0;
+  const dy = destination ? (destination.y - walker.y) * position : 0;
+
+  return `translate(${dx},${dy})`;
+};
+
 const Tangle = props =>
   <div>
     <svg width={props.width} height={props.height}>
@@ -172,8 +179,12 @@ const Tangle = props =>
               </text>}
             </g>
             {props.walker === node &&
-              <g className='walker'>
-                <Node nodeRadius={props.nodeRadius*1.6} />
+              <g className='walker' transform={getWalkerPosition({
+                walker: props.walker,
+                position: props.walkerAnimationPosition,
+                destination: props.walkerAnimationDestination,
+              })}>
+                <Node nodeRadius={props.nodeRadius*2.1} />
               </g>}
             {props.walkerDirectApproversProbabilities[node.name] &&
               <g className='walker-approver'>
@@ -218,6 +229,8 @@ Tangle.propTypes = {
   newTransaction: PropTypes.any,
   pathLinks: PropTypes.array,
   directWalkerApproverLinks: PropTypes.array,
+  walkerAnimationDestination: PropTypes.any,
+  walkerAnimationPosition: PropTypes.any,
 };
 
 export default Tangle;
