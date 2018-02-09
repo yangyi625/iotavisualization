@@ -137,6 +137,7 @@ const Tangle = props =>
         {props.nodes.map(node =>
           <Tooltip
             visible={props.hoveredNode === node}
+            key={node.name}
             placement="top"
             overlay={
               <div>Cumulative weight: {props.hoveredNodeWeight}<br />
