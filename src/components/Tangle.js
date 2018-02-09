@@ -196,6 +196,8 @@ Tangle.propTypes = {
   approvingNodes: PropTypes.any,
   approvingLinks: PropTypes.any,
   hoveredNode: PropTypes.any,
+  hoveredNodeWeight: PropTypes.any,
+  hoveredNodeScore: PropTypes.any
 };
 
 export default Tangle;
