@@ -9,7 +9,7 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
-import {getAncestors, getDirectApprovers, getDescendants, getTips} from '../shared/algorithms';
+import {getAncestors, getDirectApprovers, getDescendants, getTips, calculateWeights} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
@@ -185,7 +185,7 @@ class TangleContainer extends React.Component {
       alpha: alphaDefault,
       width: 300, // default values
       height: 300,
-      tipSelectionAlgorithm: 'UWRW',
+      tipSelectionAlgorithm: 'WRW',
       tangleId: 0,
       animationSpeed: defaultAnimationSpeed,
       oneByOne: true,
@@ -429,14 +429,43 @@ class TangleContainer extends React.Component {
       return {};
     }
     const simTime = this.state.nodes[this.state.nodes.length-1].time;
-
-    const approvers = getDirectApprovers({links: this.state.links, node})
+    const visibleNodes = this.state.nodes
       .filter(approver => approver.time < simTime - 1);
 
-    return approvers.reduce((ans, node) => ({
-      ...ans,
-      [node.name]: approvers.length === 1 ? '100%' : `1/${approvers.length}`,
-    }), {});
+    const approvers = getDirectApprovers({links: this.state.links, node})
+      .filter(approver => visibleNodes.includes(approver));
+
+    switch (this.state.tipSelectionAlgorithm) {
+      case 'UWRW':
+        return approvers.reduce((ans, node) => ({
+          ...ans,
+          [node.name]: {probability: approvers.length === 1 ? '100%' : `1/${approvers.length}`},
+        }), {});
+
+      case 'WRW':
+        const visibleLinks = this.state.links
+          .filter(link => visibleNodes.includes(link.source));
+
+        calculateWeights({nodes: visibleNodes, links: visibleLinks});
+        const maxCumWeight = Math.max(...approvers.map(node => node.cumWeight));
+        const calculateWeightFactor = node =>
+          Math.exp(this.state.alpha * (node.cumWeight-maxCumWeight));
+
+        const weightSum = approvers
+          .map(approver => calculateWeightFactor(approver))
+          .reduce((sum, w) => sum + w, 0);
+
+        return approvers.reduce((ans, node) => ({
+          ...ans,
+          [node.name]: {
+            probability: `${(100.0 * calculateWeightFactor(node)/weightSum).toFixed(0)}%`,
+            cumWeight: `${node.cumWeight}`,
+          },
+        }), {});
+
+      default:
+        return {};
+    }
   }
   handleTipSelectionRadio(event) {
     this.setState({

@@ -50,6 +50,8 @@
 
 .walker-approver text {
   fill: white;
+  alignment-baseline: middle;
+  text-anchor: middle;
 }
 
 path.links  {

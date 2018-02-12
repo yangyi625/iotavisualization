@@ -187,13 +187,27 @@ const Tangle = props =>
                 <Node nodeRadius={props.nodeRadius*2.1} />
               </g>}
             {props.walkerDirectApproversProbabilities[node.name] &&
-              <g className='walker-approver'>
-                <Node nodeRadius={props.nodeRadius*1.9} />
-                <text
-                  alignmentBaseline='middle' textAnchor='middle'>
-                  {props.walkerDirectApproversProbabilities[node.name]}
-                </text>
+              props.walkerDirectApproversProbabilities[node.name].cumWeight &&
+                <g className='walker-approver'>
+                  <Node nodeRadius={props.nodeRadius*1.9} />
+                  <line x1={-props.nodeRadius*0.9} x2={props.nodeRadius*0.9} y1={0} y2={0}
+                    strokeDasharray={'4,2'} strokeWidth={1} stroke='white' />
+                  <text y={props.nodeRadius*0.5}>
+                    {props.walkerDirectApproversProbabilities[node.name].probability}
+                  </text>
+                  <text y={-props.nodeRadius*0.5}>
+                    {props.walkerDirectApproversProbabilities[node.name].cumWeight}
+                  </text>
               </g>}
+            {props.walkerDirectApproversProbabilities[node.name] &&
+              !props.walkerDirectApproversProbabilities[node.name].cumWeight &&
+                <g className='walker-approver'>
+                  <Node nodeRadius={props.nodeRadius*1.9} />
+                  <text
+                    alignmentBaseline='middle' textAnchor='middle'>
+                    {props.walkerDirectApproversProbabilities[node.name].probability}
+                  </text>
+                </g>}
           </g>)}
       </g>
       <g>
