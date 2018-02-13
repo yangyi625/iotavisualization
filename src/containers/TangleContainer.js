@@ -200,8 +200,9 @@ class TangleContainer extends React.Component {
       this.force.nodes(this.state.nodes);
 
       // restrict nodes to window area
+      const axisHeight = 50;
       for (let node of this.state.nodes) {
-        node.y = Math.max(this.nodeRadius(), Math.min(this.state.height - this.nodeRadius(), node.y));
+        node.y = Math.max(this.nodeRadius(), Math.min(this.state.height - this.nodeRadius() - axisHeight, node.y));
       }
 
       this.recalculateFixedPositions();
