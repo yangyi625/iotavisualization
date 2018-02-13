@@ -300,17 +300,20 @@ class TangleContainer extends React.Component {
         Promise.resolve());
 
     return node.paths.reduce((promise, path) =>
-        promise.then(() => this.state.oneByOne &&
-          walk(path)
-            .then(() => delayByAnimationSpeed(this.state.animationSpeed, 1.5))
-            .then(() => {
-              return new Promise(resolve => {
-                this.setState({
-                  walker: null,
-                  walkerAnimationDestination: null,
-                }, resolve);
+        promise.then(() => {
+          if (this.state.oneByOne) {
+            return walk(path)
+              .then(() => delayByAnimationSpeed(this.state.animationSpeed, 1.5))
+              .then(() => {
+                return new Promise(resolve => {
+                  this.setState({
+                    walker: null,
+                    walkerAnimationDestination: null,
+                  }, resolve);
+                });
               });
-            })), Promise.resolve());
+          }
+        }), Promise.resolve());
   }
   startNewTangle() {
     const tangle = generateTangle({
@@ -333,24 +336,41 @@ class TangleContainer extends React.Component {
 
     this.force.stop();
 
+    const showAtOnce = () => new Promise(resolve => {
+      this.setState({
+        nodes: tangle.nodes,
+        links: tangle.links,
+      }, () => {
+        // Set all nodes' x by time value after state has been set
+        this.recalculateFixedPositions();
+        this.force.restart().alpha(0.2);
+        resolve();
+      });
+    });
+
     if (this.state.oneByOne) {
       const update = nodeCount => new Promise(resolve => {
         if (tangleId !== this.state.tangleId) {
           return;
         }
-
-        this.setState({
-          nodes: tangle.nodes.slice(0, nodeCount),
-          links: tangle.links.filter(link => link.source && parseInt(link.source.name) < nodeCount-1),
-        }, () => {
-          this.force.restart().alpha(0.2);
-          resolve(
-            this.animateWalk({
-              node: tangle.nodes[nodeCount-1],
-              tangle,
-              tangleId,
-            }));
-        });
+        if (this.state.oneByOne) {
+          this.setState({
+            nodes: tangle.nodes.slice(0, nodeCount),
+            links: tangle.links.filter(link => link.source && parseInt(link.source.name) < nodeCount-1),
+          }, () => {
+            this.force.restart().alpha(0.2);
+            resolve(
+              this.animateWalk({
+                node: tangle.nodes[nodeCount-1],
+                tangle,
+                tangleId,
+              }));
+          });
+        } else {
+          this.setState({nodes: tangle.nodes, links: tangle.links}, () => {
+            resolve(showAtOnce());
+          });
+        }
       });
 
       [...Array(tangle.nodes.length).keys()].reduce((promises, nodeCount) =>
@@ -360,13 +380,7 @@ class TangleContainer extends React.Component {
           this.setState({path: [], walker: null});
         });
     } else {
-      this.setState({
-        nodes: tangle.nodes,
-        links: tangle.links,
-      }, () => {
-        // Set all nodes' x by time value after state has been set
-        this.recalculateFixedPositions();
-      });
+      showAtOnce();
     }
 
     this.force.restart().alpha(1);
