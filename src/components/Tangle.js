@@ -157,9 +157,7 @@ const Tangle = props =>
             visible={props.hoveredNode === node}
             key={node.name}
             placement='top'
-            overlay={
-              <div>Cumulative weight: {props.hoveredNodeWeight}<br />
-              Score: {props.hoveredNodeScore}</div>}>
+            overlay={<div>Cumulative Weight: {props.hoveredNodeWeight}</div>}>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
             className='node'>
             {props.hoveredNode === node &&

@@ -183,3 +183,8 @@ path.links.walk-path {
   width: 10px;
   height: 10px;
 }
+
+/* Override rc-tooltip css */
+.rc-tooltip-inner {
+  min-height: 0;
+}
