@@ -89,10 +89,10 @@ const sliderHandle = props => {
   const {value, dragging, index, ...restProps} = props;
   return (
     <Tooltip
-      prefixCls="rc-slider-tooltip"
+      prefixCls='rc-slider-tooltip'
       overlay={value}
       visible={dragging}
-      placement="top"
+      placement='top'
       key={index}
     >
       <Handle value={value} {...restProps} />
@@ -594,6 +594,8 @@ class TangleContainer extends React.Component {
           approvingNodes={approving.nodes}
           approvingLinks={approving.links}
           hoveredNode={this.state.hoveredNode}
+          hoveredNodeWeight={approving.nodes.size + 1} // Assume each node weight is 1
+          hoveredNodeScore={approved.nodes.size + 1}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,

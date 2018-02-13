@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Tooltip from 'rc-tooltip';
 import * as d3Scale from 'd3-scale';
 
 const Axis = ({x, endX, y, startVal, endVal, ticks}) => {
@@ -152,6 +153,13 @@ const Tangle = props =>
       </g>
       <g>
         {props.nodes.map(node =>
+          <Tooltip
+            visible={props.hoveredNode === node}
+            key={node.name}
+            placement='top'
+            overlay={
+              <div>Cumulative weight: {props.hoveredNodeWeight}<br />
+              Score: {props.hoveredNodeScore}</div>}>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
             className='node'>
             {props.hoveredNode === node &&
@@ -208,7 +216,8 @@ const Tangle = props =>
                     {props.walkerDirectApproversProbabilities[node.name].probability}
                   </text>
                 </g>}
-          </g>)}
+            </g>
+          </Tooltip>)}
       </g>
       <g>
         <Axis
@@ -245,6 +254,8 @@ Tangle.propTypes = {
   directWalkerApproverLinks: PropTypes.array,
   walkerAnimationDestination: PropTypes.any,
   walkerAnimationPosition: PropTypes.any,
+  hoveredNodeWeight: PropTypes.any,
+  hoveredNodeScore: PropTypes.any,
 };
 
 export default Tangle;
