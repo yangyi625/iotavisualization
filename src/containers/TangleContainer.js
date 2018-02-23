@@ -13,6 +13,7 @@ import {getAncestors, getDescendants, getTips} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
+import SliderContainer from './SliderContainer';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -105,54 +106,6 @@ TipAlgorithmLabel.propTypes = {
   algoKey: PropTypes.string.isRequired,
 };
 
-const SliderContainer = props =>
-  <div style={{display: 'table', width: '100%'}}>
-    <div className='left-slider-value'>
-      {props.min}
-    </div>
-    <div style={{
-      display: 'table-cell',
-      position: 'relative',
-      top: '5px',
-    }}>
-      <Slider
-        min={props.min}
-        max={props.max}
-        defaultValue={props.defaultValue}
-        step={props.step}
-        marks={{}}
-        handle={props.handle}
-        disabled={props.disabled}
-        onChange={props.onChange}
-        trackStyle={{visibility: 'hidden'}}
-        railStyle={{
-          borderRadius: 0,
-          height: '1.2px',
-          backgroundColor: 'black',
-        }}
-        handleStyle={{
-          borderWidth: 0,
-          backgroundColor: 'black',
-          width: '10px',
-          height: '10px',
-          marginTop: '-4.5px',
-        }}
-        />
-    </div>
-    <div className='right-slider-value'>
-      {props.max}
-    </div>
-  </div>;
-
-SliderContainer.propTypes = {
-  min: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  defaultValue: PropTypes.number.isRequired,
-  step: PropTypes.number,
-  handle: PropTypes.any,
-  disabled: PropTypes.bool,
-  onChange: PropTypes.any,
-};
 
 class TangleContainer extends React.Component {
   constructor(props) {
@@ -307,7 +260,7 @@ class TangleContainer extends React.Component {
     });
   }
   render() {
-    const {width, height} = this.state;
+    const {nodeCount,lambda,alpha, width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
 
@@ -323,6 +276,8 @@ class TangleContainer extends React.Component {
                 min={nodeCountMin}
                 max={nodeCountMax}
                 defaultValue={nodeCountDefault}
+                value={nodeCount}
+                step={1}
                 marks={{[nodeCountMin]: `${nodeCountMin}`, [nodeCountMax]: `${nodeCountMax}`}}
                 handle={sliderHandle}
                 onChange={nodeCount => {
@@ -345,6 +300,7 @@ class TangleContainer extends React.Component {
                 max={lambdaMax}
                 step={0.2}
                 defaultValue={lambdaDefault}
+                value={lambda}
                 marks={{[lambdaMin]: `${lambdaMin}`, [lambdaMax]: `${lambdaMax}`}}
                 handle={sliderHandle}
                 onChange={lambda => {
@@ -367,6 +323,7 @@ class TangleContainer extends React.Component {
                 max={alphaMax}
                 step={0.001}
                 defaultValue={alphaDefault}
+                value={alpha}
                 marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
                 handle={sliderHandle}
                 disabled={this.state.tipSelectionAlgorithm !== 'WRW'}
