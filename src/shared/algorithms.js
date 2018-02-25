@@ -206,3 +206,33 @@ export const calculateExitProbabilitiesUnweighted = ({nodes, links}) => {
     }
   }
 };
+
+export const calculateExitProbabilitiesWeighted = ({nodes, links, alpha}) => {
+  const sorted = topologicalSort({nodes, links});
+  sorted.reverse();
+
+  for (const node of sorted) {
+    node.exitProbability = 0;
+  }
+
+  sorted[0].exitProbability = 1;
+  for (const node of sorted) {
+    const children = getChildren({links, node});
+    for (const child of children) {
+      const approvers = getDirectApprovers({links, node: child});
+      const cumWeights = approvers.map(n => n.cumWeight);
+
+      // normalize so maximum cumWeight is 0
+      const maxWeight = Math.max(...cumWeights);
+      const normalizedWeights = cumWeights.map(w => w - maxWeight);
+      const normalizedNodeCumWeight = node.cumWeight - maxWeight;
+
+      const weights = normalizedWeights.map(w => Math.exp(alpha * w));
+      const weightsSum = weights.reduce((a, b) => a + b);
+      const nodeWeight = Math.exp(alpha * normalizedNodeCumWeight);
+
+      const chanceOfGettingPicked = nodeWeight / weightsSum;
+      node.exitProbability += child.exitProbability * chanceOfGettingPicked;
+    }
+  }
+};

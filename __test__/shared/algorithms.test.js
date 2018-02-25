@@ -1,7 +1,7 @@
 import {getDescendants, getTips, getDirectApprovers, randomWalk, topologicalSort,
   calculateWeights, weightedRandomWalk, getAncestors, calculateExitProbabilitiesUniform,
   calculateExitProbabilitiesUnweighted,
-  getChildren} from '../../src/shared/algorithms';
+  getChildren, calculateExitProbabilitiesWeighted} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -523,6 +523,57 @@ describe('Algorithms', () => {
       graphify({nodes, links});
 
       calculateExitProbabilitiesUnweighted({nodes, links});
+
+      expect(nodes[1].exitProbability).toEqual(0.5);
+      expect(nodes[3].exitProbability).toEqual(0.25);
+      expect(nodes[4].exitProbability).toEqual(0.25);
+    });
+  });
+  describe('calculateExitProbabilitiesWeighted', () => {
+    it('returns 1 for only tip in chain', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 2},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      calculateWeights({nodes, links});
+      calculateExitProbabilitiesWeighted({nodes, links, alpha: 0.5});
+
+      expect(nodes[4].exitProbability).toEqual(1);
+    });
+    it('returns (0.5, 0.5) for 3 node graph', () => {
+      const nodes = initNodes(3);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+      ];
+      graphify({nodes, links});
+
+      calculateWeights({nodes, links});
+      calculateExitProbabilitiesWeighted({nodes, links, alpha: 0.5});
+
+      expect(nodes[1].exitProbability).toEqual(0.5);
+      expect(nodes[2].exitProbability).toEqual(0.5);
+    });
+    it('returns (0.5, 0.25, 0.25) for 5 node graph if alpha=0', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+        {source: 3, target: 2},
+        {source: 4, target: 2},
+      ];
+      graphify({nodes, links});
+
+      calculateWeights({nodes, links});
+      calculateExitProbabilitiesWeighted({nodes, links, alpha: 0});
 
       expect(nodes[1].exitProbability).toEqual(0.5);
       expect(nodes[3].exitProbability).toEqual(0.25);
