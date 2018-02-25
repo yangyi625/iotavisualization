@@ -59,6 +59,12 @@ export const getDirectApprovers = ({links, node}) => {
     .map(link => link.source);
 };
 
+export const getChildren = ({links, node}) => {
+  return links
+    .filter(link => link.source === node)
+    .map(link => link.target);
+};
+
 export const randomWalk = ({links, start}) => {
   let particle = start;
   const path = [start];
@@ -171,5 +177,32 @@ export const calculateWeights = ({nodes, links}) => {
     }
 
     node.cumWeight = ancestorSets[node.name].size + 1;
+  }
+};
+
+export const calculateExitProbabilitiesUniform = ({nodes, links}) => {
+  const tips = nodes.filter(node => isTip({links, node}));
+  const tipProbabilty = 1.0 / tips.length;
+
+  for (const tip of tips) {
+    tip.exitProbability = tipProbabilty;
+  }
+};
+
+export const calculateExitProbabilitiesUnweighted = ({nodes, links}) => {
+  const sorted = topologicalSort({nodes, links});
+  sorted.reverse();
+
+  for (const node of sorted) {
+    node.exitProbability = 0;
+  }
+
+  sorted[0].exitProbability = 1;
+  for (const node of sorted) {
+    const children = getChildren({links, node});
+    for (const child of children) {
+      const childApproverCount = getDirectApprovers({links, node: child}).length;
+      node.exitProbability += child.exitProbability / childApproverCount;
+    }
   }
 };

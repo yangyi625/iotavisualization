@@ -1,4 +1,7 @@
-import {getDescendants, getTips, getDirectApprovers, randomWalk, topologicalSort, calculateWeights, weightedRandomWalk, getAncestors} from '../../src/shared/algorithms';
+import {getDescendants, getTips, getDirectApprovers, randomWalk, topologicalSort,
+  calculateWeights, weightedRandomWalk, getAncestors, calculateExitProbabilitiesUniform,
+  calculateExitProbabilitiesUnweighted,
+  getChildren} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -203,6 +206,44 @@ describe('Algorithms', () => {
       expect(approvers).toContain(nodes[1]);
     });
   });
+  describe('getChildren', () => {
+    it('returns no children for 1 node graph', () => {
+      const nodes = initNodes(1);
+      const links = [];
+      graphify({nodes, links});
+
+      const children = getChildren({links, node: nodes[0]});
+
+      expect(children).toHaveLength(0);
+    });
+    it('returns correct children in 3 node graph', () => {
+      const nodes = initNodes(3);
+      const links = [
+        {source: 0, target: 1},
+        {source: 0, target: 2},
+      ];
+      graphify({nodes, links});
+
+      const children = getChildren({links, node: nodes[0]});
+
+      expect(children).toHaveLength(2);
+      expect(children).toContain(nodes[1]);
+      expect(children).toContain(nodes[2]);
+    });
+    it('returns correct children in 3 node chain', () => {
+      const nodes = initNodes(3);
+      const links = [
+        {source: 2, target: 1},
+        {source: 1, target: 0},
+      ];
+      graphify({nodes, links});
+
+      const children = getChildren({links, node: nodes[1]});
+
+      expect(children).toHaveLength(1);
+      expect(children).toContain(nodes[0]);
+    });
+  });
   describe('randomWalk', () => {
     it('stays on branch, single possible outcome', () => {
       const nodes = initNodes(4);
@@ -390,6 +431,102 @@ describe('Algorithms', () => {
       for (let i=0; i<path.length; i++) {
         expect(path[i].name).toEqual(i);
       }
+    });
+  });
+  describe('calculateExitProbabilitiesUniform', () => {
+    it('returns 1 for only tip in chain', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 2},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUniform({nodes, links});
+
+      expect(nodes[4].exitProbability).toEqual(1);
+    });
+    it('returns (0.5, 0.5) for 3 node graph', () => {
+      const nodes = initNodes(3);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUniform({nodes, links});
+
+      expect(nodes[1].exitProbability).toEqual(0.5);
+      expect(nodes[2].exitProbability).toEqual(0.5);
+    });
+    it('returns (1/3, 1/3, 1/3) for 5 node graph', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+        {source: 3, target: 2},
+        {source: 4, target: 2},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUniform({nodes, links});
+
+      expect(nodes[1].exitProbability).toEqual(1/3);
+      expect(nodes[3].exitProbability).toEqual(1/3);
+      expect(nodes[4].exitProbability).toEqual(1/3);
+    });
+  });
+  describe('calculateExitProbabilitiesUnweighted', () => {
+    it('returns 1 for only tip in chain', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 2},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUnweighted({nodes, links});
+
+      expect(nodes[4].exitProbability).toEqual(1);
+    });
+    it('returns (0.5, 0.5) for 3 node graph', () => {
+      const nodes = initNodes(3);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUnweighted({nodes, links});
+
+      expect(nodes[1].exitProbability).toEqual(0.5);
+      expect(nodes[2].exitProbability).toEqual(0.5);
+    });
+    it('returns (0.5, 0.25, 0.25) for 5 node graph', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 0},
+        {source: 3, target: 2},
+        {source: 4, target: 2},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUnweighted({nodes, links});
+
+      expect(nodes[1].exitProbability).toEqual(0.5);
+      expect(nodes[3].exitProbability).toEqual(0.25);
+      expect(nodes[4].exitProbability).toEqual(0.25);
     });
   });
 });
