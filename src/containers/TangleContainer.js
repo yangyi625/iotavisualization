@@ -9,7 +9,9 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
-import {getAncestors, getDirectApprovers, getDescendants, getTips, calculateWeights} from '../shared/algorithms';
+import {getAncestors, getDirectApprovers, getDescendants, getTips, calculateWeights,
+  calculateExitProbabilitiesWeighted, calculateExitProbabilitiesUnweighted,
+  calculateExitProbabilitiesUniform, calculateConfidence} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
@@ -33,7 +35,7 @@ const getDelayFactor = animationSpeed => {
   return scale(Math.max(0.01, animationSpeed));
 };
 
-const defaultAnimationSpeed = 0.7;
+const defaultAnimationSpeed = 1;
 const maxDelayInMs = 5 * 1000;
 const minDelayInMs = 1;
 
@@ -59,14 +61,17 @@ const getNodeRadius = nodeCount => {
 const tipSelectionDictionary = {
   'UR': {
     algo: uniformRandom,
+    calcExit: calculateExitProbabilitiesUniform,
     label: 'Uniform Random',
   },
   'UWRW': {
     algo: unWeightedMCMC,
+    calcExit: calculateExitProbabilitiesUnweighted,
     label: 'Unweighted Random Walk',
   },
   'WRW': {
     algo: weightedMCMC,
+    calcExit: calculateExitProbabilitiesWeighted,
     label: 'Weighted Random Walk',
   },
 };
@@ -140,7 +145,7 @@ class TangleContainer extends React.Component {
       tipSelectionAlgorithm: 'WRW',
       tangleId: 0,
       animationSpeed: defaultAnimationSpeed,
-      oneByOne: true,
+      oneByOne: false,
       path: [],
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
@@ -269,12 +274,13 @@ class TangleContainer extends React.Component {
       }), Promise.resolve());
   }
   startNewTangle() {
+    const {nodeCount, lambda, alpha, tipSelectionAlgorithm} = this.state;
     const tangle = generateTangle({
-      nodeCount: this.state.nodeCount,
-      lambda: this.state.lambda,
-      alpha: this.state.alpha,
+      nodeCount,
+      lambda,
+      alpha,
       nodeRadius: this.nodeRadius(),
-      tipSelectionAlgorithm: tipSelectionDictionary[this.state.tipSelectionAlgorithm].algo,
+      tipSelectionAlgorithm: tipSelectionDictionary[tipSelectionAlgorithm].algo,
     });
 
     const tangleId = this.state.tangleId + 1;
@@ -289,11 +295,17 @@ class TangleContainer extends React.Component {
 
     this.force.stop();
 
+    const calculateStats = ({nodes, links}) => {
+      const calcExit = tipSelectionDictionary[tipSelectionAlgorithm].calcExit;
+      calculateWeights({nodes, links});
+      calcExit({nodes, links, alpha});
+      calculateConfidence({nodes, links});
+    };
+
     const showAtOnce = () => new Promise(resolve => {
-      this.setState({
-        nodes: tangle.nodes,
-        links: tangle.links,
-      }, () => {
+      const {nodes, links} = tangle;
+      calculateStats({nodes, links});
+      this.setState({nodes, links}, () => {
         // Set all nodes' x by time value after state has been set
         this.recalculateFixedPositions();
         this.force.restart().alpha(0.2);
@@ -307,9 +319,12 @@ class TangleContainer extends React.Component {
           return;
         }
         if (this.state.oneByOne) {
+          const nodes = tangle.nodes.slice(0, nodeCount);
+          const links = tangle.links.filter(link => link.source && parseInt(link.source.name) < nodeCount-1);
+          calculateStats({nodes, links});
           this.setState({
-            nodes: tangle.nodes.slice(0, nodeCount),
-            links: tangle.links.filter(link => link.source && parseInt(link.source.name) < nodeCount-1),
+            nodes,
+            links,
           }, () => {
             this.force.restart().alpha(0.2);
             resolve(

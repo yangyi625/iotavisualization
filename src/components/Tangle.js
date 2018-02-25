@@ -157,7 +157,15 @@ const Tangle = props =>
             visible={props.hoveredNode === node}
             key={node.name}
             placement='top'
-            overlay={<div>Cumulative Weight: {props.hoveredNodeWeight}</div>}>
+            overlay={
+              <div>
+                <div>
+                  Cumulative Weight: {props.hoveredNodeWeight}
+                </div>
+                <div>
+                  Confidence: {node.confidence && node.confidence.toFixed(2)}
+                </div>
+              </div>}>
             <g transform={`translate(${node.x},${node.y})`} key={node.name}
               className='node'>
               {props.hoveredNode === node &&
@@ -177,6 +185,7 @@ const Tangle = props =>
                 <Node
                   nodeRadius={props.nodeRadius}
                   name={node.name}
+                  strokeWidth={(node.confidence && node.confidence >= 0.95) ? '4px' : '1px'}
                   mouseEntersNodeHandler={props.mouseEntersNodeHandler}
                   mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
                 {props.showLabels && <text
