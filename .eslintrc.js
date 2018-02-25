@@ -8,6 +8,7 @@ module.exports = {
       "arrow-parens": 0,
       "require-jsdoc": 0,
       "max-len": 0,
+      "indent": ["error", 2],
       "jsx-quotes": ["error", "prefer-single"]
   },
 };

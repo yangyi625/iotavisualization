@@ -13,6 +13,7 @@ import {getAncestors, getDirectApprovers, getDescendants, getTips, calculateWeig
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
+import SliderContainer from './SliderContainer';
 
 const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = (dispatch, ownProps) => ({});
@@ -124,55 +125,6 @@ TipAlgorithmLabel.propTypes = {
   algoKey: PropTypes.string.isRequired,
 };
 
-const SliderContainer = props =>
-  <div style={{display: 'table', width: '100%'}}>
-    <div className='left-slider-value'>
-      {props.min}
-    </div>
-    <div style={{
-      display: 'table-cell',
-      position: 'relative',
-      top: '5px',
-    }}>
-      <Slider
-        min={props.min}
-        max={props.max}
-        defaultValue={props.defaultValue}
-        step={props.step}
-        marks={{}}
-        handle={props.handle}
-        disabled={props.disabled}
-        onChange={props.onChange}
-        trackStyle={{visibility: 'hidden'}}
-        railStyle={{
-          borderRadius: 0,
-          height: '1.2px',
-          backgroundColor: 'black',
-        }}
-        handleStyle={{
-          borderWidth: 0,
-          backgroundColor: 'black',
-          width: '10px',
-          height: '10px',
-          marginTop: '-4.5px',
-        }}
-      />
-    </div>
-    <div className='right-slider-value'>
-      {props.max}
-    </div>
-  </div>;
-
-SliderContainer.propTypes = {
-  min: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  defaultValue: PropTypes.number.isRequired,
-  step: PropTypes.number,
-  handle: PropTypes.any,
-  disabled: PropTypes.bool,
-  onChange: PropTypes.any,
-};
-
 class TangleContainer extends React.Component {
   constructor(props) {
     super();
@@ -269,52 +221,52 @@ class TangleContainer extends React.Component {
                 path: path.slice(0, index+1),
               }, resolve);
             });
-        }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed))
-        .then(() => {
-          if (index === path.length - 1) {
-            return;
-          }
+          }).then(() => this.state.oneByOne && delayByAnimationSpeed(this.state.animationSpeed))
+          .then(() => {
+            if (index === path.length - 1) {
+              return;
+            }
 
-          const fps = 30.0;
-          const durationInMs = 0.8 * getDelayFactor(this.state.animationSpeed);
-          const frameCount = Math.floor(fps * durationInMs / 1000.0);
-          const timeBetweenFramesInMs = durationInMs / frameCount;
-          const scale = scaleLinear()
-            .domain([0, frameCount-1])
-            .range([0, 1]);
+            const fps = 30.0;
+            const durationInMs = 0.8 * getDelayFactor(this.state.animationSpeed);
+            const frameCount = Math.floor(fps * durationInMs / 1000.0);
+            const timeBetweenFramesInMs = durationInMs / frameCount;
+            const scale = scaleLinear()
+              .domain([0, frameCount-1])
+              .range([0, 1]);
 
-          return [...Array(frameCount).keys()].reduce((promise, frame) => {
-            return promise
-              .then(() => {
-                if (this.state.tangleId !== tangleId) {
-                  return Promise.resolve();
-                }
-                return new Promise(resolve => {
-                  this.setState({
-                    walkerAnimationDestination: path[index+1],
-                    walkerAnimationPosition: scale(frame),
-                  }, resolve);
-                }).then(() => delay(timeBetweenFramesInMs));
-              });
-          }, Promise.resolve());
-        }),
-        Promise.resolve());
+            return [...Array(frameCount).keys()].reduce((promise, frame) => {
+              return promise
+                .then(() => {
+                  if (this.state.tangleId !== tangleId) {
+                    return Promise.resolve();
+                  }
+                  return new Promise(resolve => {
+                    this.setState({
+                      walkerAnimationDestination: path[index+1],
+                      walkerAnimationPosition: scale(frame),
+                    }, resolve);
+                  }).then(() => delay(timeBetweenFramesInMs));
+                });
+            }, Promise.resolve());
+          }),
+      Promise.resolve());
 
     return node.paths.reduce((promise, path) =>
-        promise.then(() => {
-          if (this.state.oneByOne) {
-            return walk(path)
-              .then(() => delayByAnimationSpeed(this.state.animationSpeed, 1.5))
-              .then(() => {
-                return new Promise(resolve => {
-                  this.setState({
-                    walker: null,
-                    walkerAnimationDestination: null,
-                  }, resolve);
-                });
+      promise.then(() => {
+        if (this.state.oneByOne) {
+          return walk(path)
+            .then(() => delayByAnimationSpeed(this.state.animationSpeed, 1.5))
+            .then(() => {
+              return new Promise(resolve => {
+                this.setState({
+                  walker: null,
+                  walkerAnimationDestination: null,
+                }, resolve);
               });
-          }
-        }), Promise.resolve());
+            });
+        }
+      }), Promise.resolve());
   }
   startNewTangle() {
     const tangle = generateTangle({
@@ -376,7 +328,7 @@ class TangleContainer extends React.Component {
 
       [...Array(tangle.nodes.length).keys()].reduce((promises, nodeCount) =>
         promises.then(() => update(nodeCount+1)),
-        Promise.resolve())
+      Promise.resolve())
         .then(() => {
           this.setState({path: [], walker: null});
         });
@@ -451,35 +403,35 @@ class TangleContainer extends React.Component {
       .filter(approver => visibleNodes.includes(approver));
 
     switch (this.state.tipSelectionAlgorithm) {
-      case 'UWRW':
-        return approvers.reduce((ans, node) => ({
-          ...ans,
-          [node.name]: {probability: approvers.length === 1 ? '100%' : `1/${approvers.length}`},
-        }), {});
+    case 'UWRW':
+      return approvers.reduce((ans, node) => ({
+        ...ans,
+        [node.name]: {probability: approvers.length === 1 ? '100%' : `1/${approvers.length}`},
+      }), {});
 
-      case 'WRW':
-        const visibleLinks = this.state.links
-          .filter(link => visibleNodes.includes(link.source));
+    case 'WRW':
+      const visibleLinks = this.state.links
+        .filter(link => visibleNodes.includes(link.source));
 
-        calculateWeights({nodes: visibleNodes, links: visibleLinks});
-        const maxCumWeight = Math.max(...approvers.map(node => node.cumWeight));
-        const calculateWeightFactor = node =>
-          Math.exp(this.state.alpha * (node.cumWeight-maxCumWeight));
+      calculateWeights({nodes: visibleNodes, links: visibleLinks});
+      const maxCumWeight = Math.max(...approvers.map(node => node.cumWeight));
+      const calculateWeightFactor = node =>
+        Math.exp(this.state.alpha * (node.cumWeight-maxCumWeight));
 
-        const weightSum = approvers
-          .map(approver => calculateWeightFactor(approver))
-          .reduce((sum, w) => sum + w, 0);
+      const weightSum = approvers
+        .map(approver => calculateWeightFactor(approver))
+        .reduce((sum, w) => sum + w, 0);
 
-        return approvers.reduce((ans, node) => ({
-          ...ans,
-          [node.name]: {
-            probability: `${(100.0 * calculateWeightFactor(node)/weightSum).toFixed(0)}%`,
-            cumWeight: `${node.cumWeight}`,
-          },
-        }), {});
+      return approvers.reduce((ans, node) => ({
+        ...ans,
+        [node.name]: {
+          probability: `${(100.0 * calculateWeightFactor(node)/weightSum).toFixed(0)}%`,
+          cumWeight: `${node.cumWeight}`,
+        },
+      }), {});
 
-      default:
-        return {};
+    default:
+      return {};
     }
   }
   handleTipSelectionRadio(event) {
@@ -490,7 +442,7 @@ class TangleContainer extends React.Component {
     });
   }
   render() {
-    const {width, height} = this.state;
+    const {nodeCount, lambda, alpha, width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
     const pathLinks = !this.state.oneByOne ? [] :
@@ -519,6 +471,8 @@ class TangleContainer extends React.Component {
                 min={nodeCountMin}
                 max={nodeCountMax}
                 defaultValue={nodeCountDefault}
+                value={nodeCount}
+                step={1}
                 handle={sliderHandle}
                 onChange={nodeCount => {
                   this.setState(Object.assign(this.state, {nodeCount}));
@@ -538,8 +492,9 @@ class TangleContainer extends React.Component {
               <SliderContainer
                 min={lambdaMin}
                 max={lambdaMax}
-                step={0.2}
+                step={0.1}
                 defaultValue={lambdaDefault}
+                value={lambda}
                 handle={sliderHandle}
                 onChange={lambda => {
                   this.setState(Object.assign(this.state, {lambda}));
@@ -561,7 +516,7 @@ class TangleContainer extends React.Component {
                 max={alphaMax}
                 step={0.001}
                 defaultValue={alphaDefault}
-                marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
+                value={alpha}
                 handle={sliderHandle}
                 disabled={this.state.tipSelectionAlgorithm !== 'WRW'}
                 onChange={alpha => {
@@ -584,6 +539,7 @@ class TangleContainer extends React.Component {
                 max={1}
                 step={0.01}
                 defaultValue={defaultAnimationSpeed}
+                value={this.state.animationSpeed}
                 handle={sliderHandle}
                 onChange={animationSpeed => {
                   this.setState(Object.assign(this.state, {

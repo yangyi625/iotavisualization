@@ -140,15 +140,15 @@ const Tangle = props =>
       <g>
         {props.links.map(link =>
           <path className={`links${props.approvedLinks.has(link) ? ' approved' :
-                                   props.pathLinks.includes(link) ? ' approved walk-path' :
-                                   props.directWalkerApproverLinks.includes(link) ? ' approving walk-path' :
-                                   props.approvingLinks.has(link) ? ' approving' : ''}` +
+            props.pathLinks.includes(link) ? ' approved walk-path' :
+              props.directWalkerApproverLinks.includes(link) ? ' approving walk-path' :
+                props.approvingLinks.has(link) ? ' approving' : ''}` +
                                    `${props.invisibleNodes.includes(link.source) ? ' invisible' : ''}`}
-            key={`${link.source.name}->${link.target.name}`}
-            d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
-            markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' :
-                       props.approvingLinks.has(link) ? 'url(#arrowhead-approving)' :
-                       'url(#arrowhead)'}
+          key={`${link.source.name}->${link.target.name}`}
+          d={generateLinkPath({link, nodeRadius: props.nodeRadius})}
+          markerEnd={props.approvedLinks.has(link) ? 'url(#arrowhead-approved)' :
+            props.approvingLinks.has(link) ? 'url(#arrowhead-approving)' :
+              'url(#arrowhead)'}
           /> )}
       </g>
       <g>
@@ -158,33 +158,33 @@ const Tangle = props =>
             key={node.name}
             placement='top'
             overlay={<div>Cumulative Weight: {props.hoveredNodeWeight}</div>}>
-          <g transform={`translate(${node.x},${node.y})`} key={node.name}
-            className='node'>
-            {props.hoveredNode === node &&
+            <g transform={`translate(${node.x},${node.y})`} key={node.name}
+              className='node'>
+              {props.hoveredNode === node &&
               <g style={{opacity: 0.4}}>
                 <Node nodeRadius={props.nodeRadius*1.6} />
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
-            {props.newTransaction === node &&
+              {props.newTransaction === node &&
               <g style={{opacity: 0.4}}>
                 <Node nodeRadius={props.nodeRadius*1.6} />
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
-            <g className={`${props.invisibleNodes.includes(node) ? 'invisible ' : ''}` +
+              <g className={`${props.invisibleNodes.includes(node) ? 'invisible ' : ''}` +
               `${props.approvedNodes.has(node) ? 'approved' :
-                 props.approvingNodes.has(node) ? 'approving' :
-                 props.tips.has(node) ? 'tip' : ''}`}>
-              <Node
-                nodeRadius={props.nodeRadius}
-                name={node.name}
-                mouseEntersNodeHandler={props.mouseEntersNodeHandler}
-                mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
-              {props.showLabels && <text
-                alignmentBaseline='middle' textAnchor='middle'>
-                {node.name}
-              </text>}
-            </g>
-            {props.walker === node &&
+                props.approvingNodes.has(node) ? 'approving' :
+                  props.tips.has(node) ? 'tip' : ''}`}>
+                <Node
+                  nodeRadius={props.nodeRadius}
+                  name={node.name}
+                  mouseEntersNodeHandler={props.mouseEntersNodeHandler}
+                  mouseLeavesNodeHandler={props.mouseLeavesNodeHandler} />
+                {props.showLabels && <text
+                  alignmentBaseline='middle' textAnchor='middle'>
+                  {node.name}
+                </text>}
+              </g>
+              {props.walker === node &&
               <g className='walker' transform={getWalkerPosition({
                 walker: props.walker,
                 position: props.walkerAnimationPosition,
@@ -192,7 +192,7 @@ const Tangle = props =>
               })}>
                 <Node nodeRadius={props.nodeRadius*2.1} />
               </g>}
-            {props.walkerDirectApproversProbabilities[node.name] &&
+              {props.walkerDirectApproversProbabilities[node.name] &&
               props.walkerDirectApproversProbabilities[node.name].cumWeight &&
                 <g className='walker-approver'>
                   <Node nodeRadius={props.nodeRadius*1.9} />
@@ -204,8 +204,8 @@ const Tangle = props =>
                   <text y={-props.nodeRadius*0.5}>
                     {props.walkerDirectApproversProbabilities[node.name].cumWeight}
                   </text>
-              </g>}
-            {props.walkerDirectApproversProbabilities[node.name] &&
+                </g>}
+              {props.walkerDirectApproversProbabilities[node.name] &&
               !props.walkerDirectApproversProbabilities[node.name].cumWeight &&
                 <g className='walker-approver'>
                   <Node nodeRadius={props.nodeRadius*1.9} />
@@ -225,7 +225,7 @@ const Tangle = props =>
           ticks={8}
           startVal={0}
           endVal={props.nodes.length < 2 ? 1 : Math.max(...props.nodes.map(n => n.time))}
-          />
+        />
       </g>
     </svg>
   </div>;
