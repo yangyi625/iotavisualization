@@ -228,11 +228,23 @@ export const calculateExitProbabilitiesWeighted = ({nodes, links, alpha}) => {
       const normalizedNodeCumWeight = node.cumWeight - maxWeight;
 
       const weights = normalizedWeights.map(w => Math.exp(alpha * w));
-      const weightsSum = weights.reduce((a, b) => a + b);
+      const weightsSum = weights.reduce((a, b) => a + b, 0);
       const nodeWeight = Math.exp(alpha * normalizedNodeCumWeight);
 
       const chanceOfGettingPicked = nodeWeight / weightsSum;
       node.exitProbability += child.exitProbability * chanceOfGettingPicked;
     }
+  }
+};
+
+export const calculateConfidence = ({nodes, links}) => {
+  // Assumes exit probabilities are pre-calculated
+  for (const node of nodes) {
+    const approvingTips = Array.from(getAncestors({nodes, links, root: node}).nodes)
+      .filter(ancestor => isTip({links, node: ancestor}));
+
+    node.confidence = approvingTips
+      .map(tip => tip.exitProbability)
+      .reduce((a, b) => a + b, 0);
   }
 };

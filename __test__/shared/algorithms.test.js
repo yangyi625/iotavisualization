@@ -1,7 +1,7 @@
 import {getDescendants, getTips, getDirectApprovers, randomWalk, topologicalSort,
   calculateWeights, weightedRandomWalk, getAncestors, calculateExitProbabilitiesUniform,
   calculateExitProbabilitiesUnweighted,
-  getChildren, calculateExitProbabilitiesWeighted} from '../../src/shared/algorithms';
+  getChildren, calculateExitProbabilitiesWeighted, calculateConfidence} from '../../src/shared/algorithms';
 
 // convert links from names to pointers
 const graphify = ({nodes, links}) => {
@@ -578,6 +578,42 @@ describe('Algorithms', () => {
       expect(nodes[1].exitProbability).toEqual(0.5);
       expect(nodes[3].exitProbability).toEqual(0.25);
       expect(nodes[4].exitProbability).toEqual(0.25);
+    });
+  });
+  describe('calculateConfidence', () => {
+    it('Tip has zero conf and genesis has one', () => {
+      const nodes = initNodes(2);
+
+      const links = [
+        {source: 1, target: 0},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUniform({nodes, links});
+      calculateConfidence({nodes, links});
+
+      expect(nodes[0].confidence).toEqual(1);
+      expect(nodes[1].confidence).toEqual(0);
+    });
+    it('(1, 0.5, 0.5, 0, 0) for 5 node V graph', () => {
+      const nodes = initNodes(5);
+
+      const links = [
+        {source: 1, target: 0},
+        {source: 2, target: 1},
+        {source: 3, target: 0},
+        {source: 4, target: 3},
+      ];
+      graphify({nodes, links});
+
+      calculateExitProbabilitiesUniform({nodes, links});
+      calculateConfidence({nodes, links});
+
+      expect(nodes[0].confidence).toEqual(1);
+      expect(nodes[1].confidence).toEqual(0.5);
+      expect(nodes[2].confidence).toEqual(0);
+      expect(nodes[3].confidence).toEqual(0.5);
+      expect(nodes[4].confidence).toEqual(0);
     });
   });
 });
