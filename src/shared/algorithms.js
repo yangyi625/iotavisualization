@@ -52,6 +52,13 @@ export const getTips = ({nodes, links}) => {
 
   return new Set(tips);
 };
+export const getmilestone = ({nodes,links}) =>{
+
+ const milestones = nodes.filter(node=>node.milestone===true);
+ return new Set(milestones);
+
+};
+
 
 export const getApprovers = ({links, node}) => {
   return links

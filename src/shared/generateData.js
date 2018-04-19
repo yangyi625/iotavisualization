@@ -1,36 +1,52 @@
 const jStat = require('jStat').jStat;
 
-export const generateTangle = ({nodeCount, lambda = 1.5, h=1, alpha=0.5, tipSelectionAlgorithm}) => {
+export const generateTangle = ({nodeCount,beta=0.2 ,lambda = 1.5, h=1, alpha=0.5, tipSelectionAlgorithm}) => {
   jStat.exponential.sample(lambda);
   const genesis = {
     name: '0',
     time: 0,
+    milestone:true
   };
-
+  
   let nodes = [genesis];
   let time = h;
+  let milestoneCount = Math.floor(nodeCount*beta);
   while (nodes.length < nodeCount) {
     const delay = jStat.exponential.sample(lambda);
     time += delay;
+    if ((nodes.length%milestoneCount)==0)
+    {
+      nodes.push({
+        name: `${nodes.length}`,
+        milestone:true,
+        time,
+        x: 300,
+        y: 200, });
+    }
+    else{
     nodes.push({
-      name: `${nodes.length}`,
-      time,
-      x: 300,
-      y: 200,
-    });
+        name: `${nodes.length}`,
+        milestone:false,
+        time,
+        x: 300,
+        y: 200,
+      });
+    }
   }
 
   const links = [];
+  var startpoint;
   for (let node of nodes) {
+    if(node.name=="0") startpoint=node;
     const candidates = nodes
       .filter(candidate => candidate.time < node.time - h);
-
     const candidateLinks = links
       .filter(link => link.source.time < node.time - h);
 
     const tips = tipSelectionAlgorithm({
       nodes: candidates,
       links: candidateLinks,
+      start: startpoint,
       alpha,
     });
 
@@ -39,6 +55,10 @@ export const generateTangle = ({nodeCount, lambda = 1.5, h=1, alpha=0.5, tipSele
       if (tips.length > 1 && tips[0].name !== tips[1].name) {
         links.push({source: node, target: tips[1]});
       }
+    }
+    if(node.milestone) 
+    {
+      startpoint=node;
     }
   };
 

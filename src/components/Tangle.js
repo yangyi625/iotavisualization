@@ -136,7 +136,8 @@ const Tangle = props =>
         {props.nodes.map(node =>
           <g transform={`translate(${node.x},${node.y})`} key={node.name}
             className={
-              `${props.approvedNodes.has(node) ? 'approved' :
+              `${props.milestoneNodes.has(node) ? 'milestone':
+                 props.approvedNodes.has(node) ? 'approved' :
                  props.approvingNodes.has(node) ? 'approving' :
                  props.tips.has(node) ? 'tip' : ''}`}>
             {props.hoveredNode === node &&

@@ -19,12 +19,13 @@ export const unWeightedMCMC = ({nodes, links}) => {
   ];
 };
 
-export const weightedMCMC = ({nodes, links, alpha}) => {
+export const weightedMCMC = ({nodes,links,start, alpha}) => {
   if (nodes.length === 0) {
     return [];
   }
-
-  const start = nodes[0]; // Start in genesis
+  
+  //const start = nodes[0]; // Start in genesis
+                          //start in lastsolid milestone
 
   calculateWeights({nodes, links});
 

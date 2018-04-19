@@ -9,7 +9,7 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
-import {getAncestors, getDescendants, getTips} from '../shared/algorithms';
+import {getAncestors, getDescendants, getTips,getmilestone} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
@@ -62,6 +62,9 @@ const nodeCountDefault = 20;
 const lambdaMin = 0.1;
 const lambdaMax = 50;
 const lambdaDefault = 1.5;
+const betaMin = 0;
+const betaMax = 1;
+const betaDefault = 0.2;
 const alphaMin = 0;
 const alphaMax = 5;
 const alphaDefault = 0.5;
@@ -117,6 +120,7 @@ class TangleContainer extends React.Component {
       nodeCount: nodeCountDefault,
       lambda: lambdaDefault,
       alpha: alphaDefault,
+      beta:betaDefault,
       width: 300, // default values
       height: 300,
       nodeRadius: getNodeRadius(nodeCountDefault),
@@ -169,6 +173,7 @@ class TangleContainer extends React.Component {
     const nodeRadius = getNodeRadius(this.state.nodeCount);
     const tangle = generateTangle({
       nodeCount: this.state.nodeCount,
+      beta:this.state.beta,
       lambda: this.state.lambda,
       alpha: this.state.alpha,
       nodeRadius,
@@ -260,9 +265,10 @@ class TangleContainer extends React.Component {
     });
   }
   render() {
-    const {nodeCount,lambda,alpha, width, height} = this.state;
+    const {nodeCount,beta,lambda,alpha, width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
+    
 
     return (
       <div>
@@ -316,12 +322,35 @@ class TangleContainer extends React.Component {
             </div>
           </div>
           <div className='top-bar-row'>
+            <div className='slider-title'>milestone rate (β)</div>
+            <div className='slider-container'>
+              <SliderContainer
+                min={betaMin}
+                max={betaMax}
+                step={0.01}
+                defaultValue={betaDefault}
+                value={beta}
+                marks={{[betaMin]: `${betaMin}`, [betaMax]: `${betaMax}`}}
+                handle={sliderHandle}
+                onChange={beta => {
+                  this.setState(Object.assign(this.state, {beta}));
+                  this.startNewTangle();
+                }} />
+            </div>
+            <div className='tip-algo-label'>
+              <TipAlgorithmLabel
+                algoKey='UWRW'
+                selectedAlgorithm={this.state.tipSelectionAlgorithm}
+                onChange={this.handleTipSelectionRadio.bind(this)} />
+            </div>
+            </div>
+          <div className='top-bar-row'>
             <div className='slider-title'>alpha</div>
             <div className='slider-container'>
               <SliderContainer
                 min={alphaMin}
                 max={alphaMax}
-                step={0.001}
+                step={0.2}
                 defaultValue={alphaDefault}
                 value={alpha}
                 marks={{[alphaMin]: `${alphaMin}`, [alphaMax]: `${alphaMax}`}}
@@ -354,6 +383,10 @@ class TangleContainer extends React.Component {
           approvingNodes={approving.nodes}
           approvingLinks={approving.links}
           hoveredNode={this.state.hoveredNode}
+          milestoneNodes={getmilestone({
+            nodes: this.state.nodes,
+            links: this.state.links,
+          })}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,
