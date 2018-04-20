@@ -63,8 +63,8 @@ const lambdaMin = 0.1;
 const lambdaMax = 50;
 const lambdaDefault = 1.5;
 const betaMin = 0;
-const betaMax = 1;
-const betaDefault = 0.2;
+const betaMax = 100;
+const betaDefault = 1;
 const alphaMin = 0;
 const alphaMax = 5;
 const alphaDefault = 0.5;
@@ -327,7 +327,7 @@ class TangleContainer extends React.Component {
               <SliderContainer
                 min={betaMin}
                 max={betaMax}
-                step={0.01}
+                step={0.5}
                 defaultValue={betaDefault}
                 value={beta}
                 marks={{[betaMin]: `${betaMin}`, [betaMax]: `${betaMax}`}}

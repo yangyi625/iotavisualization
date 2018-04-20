@@ -19,18 +19,22 @@ export const unWeightedMCMC = ({nodes, links}) => {
   ];
 };
 
-export const weightedMCMC = ({nodes,links,start, alpha}) => {
+export const weightedMCMC = ({nodes,links,start,alpha}) => {
   if (nodes.length === 0) {
     return [];
   }
   
   //const start = nodes[0]; // Start in genesis
                           //start in lastsolid milestone
-
+  //var start = nodes[0];
   calculateWeights({nodes, links});
+  var tip,tip1;
+  tip=weightedRandomWalk({links, start, alpha});          
+  var start = nodes[0];
+  tip1=weightedRandomWalk({links, start, alpha});
 
   return [
-    weightedRandomWalk({links, start, alpha}),
-    weightedRandomWalk({links, start, alpha}),
+    tip,
+    tip1
   ];
 };
