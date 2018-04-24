@@ -11,7 +11,7 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import {getAncestors, getDirectApprovers, getDescendants, getTips, calculateWeights,
   calculateExitProbabilitiesWeighted, calculateExitProbabilitiesUnweighted,
-  calculateExitProbabilitiesUniform, calculateConfidence} from '../shared/algorithms';
+  calculateExitProbabilitiesUniform, calculateConfidence,getmilestone,gettransactionorder} from '../shared/algorithms';
 import './radio-button.css';
 import {uniformRandom, unWeightedMCMC, weightedMCMC} from '../shared/tip-selection';
 import '../components/Tangle.css';
@@ -82,10 +82,13 @@ const bottomMargin = 190;
 
 const nodeCountMin = 1;
 const nodeCountMax = 500;
-const nodeCountDefault = 50;
+const nodeCountDefault = 20;
 const lambdaMin = 0.1;
 const lambdaMax = 50;
 const lambdaDefault = 2;
+const betaMin = 0;
+const betaMax = 100;
+const betaDefault = 5;
 const alphaMin = 0;
 const alphaMax = 5;
 const alphaDefault = 0.5;
@@ -140,6 +143,7 @@ class TangleContainer extends React.Component {
       nodeCount: nodeCountDefault,
       lambda: lambdaDefault,
       alpha: alphaDefault,
+      beta:betaDefault,
       width: 300, // default values
       height: 300,
       tipSelectionAlgorithm: 'WRW',
@@ -274,9 +278,10 @@ class TangleContainer extends React.Component {
       }), Promise.resolve());
   }
   startNewTangle() {
-    const {nodeCount, lambda, alpha, tipSelectionAlgorithm} = this.state;
+    const {nodeCount,beta, lambda, alpha, tipSelectionAlgorithm} = this.state;
     const tangle = generateTangle({
       nodeCount,
+      beta,
       lambda,
       alpha,
       nodeRadius: this.nodeRadius(),
@@ -457,7 +462,7 @@ class TangleContainer extends React.Component {
     });
   }
   render() {
-    const {nodeCount, lambda, alpha, width, height} = this.state;
+    const {nodeCount, beta,lambda, alpha, width, height} = this.state;
     const approved = this.getApprovedNodes(this.state.hoveredNode);
     const approving = this.getApprovingNodes(this.state.hoveredNode);
     const pathLinks = !this.state.oneByOne ? [] :
@@ -547,6 +552,25 @@ class TangleContainer extends React.Component {
             </div>
           </div>
           <div className='top-bar-row'>
+            <div className='slider-title'>milestone frequency(β)</div>
+            <div className='slider-container'>
+              <SliderContainer
+                min={betaMin}
+                max={betaMax}
+                step={0.5}
+                defaultValue={betaDefault}
+                value={beta}
+                marks={{[betaMin]: `${betaMin}`, [betaMax]: `${betaMax}`}}
+                handle={sliderHandle}
+                onChange={beta => {
+                  this.setState(Object.assign(this.state, {beta}));
+                  this.startNewTangle();
+                }} />
+                </div>
+          <div className='tip-algo-label'></div>
+        
+</div>
+          <div className='top-bar-row'>
             <div className='slider-title'>Animation speed</div>
             <div className='slider-container'>
               <SliderContainer
@@ -582,6 +606,15 @@ class TangleContainer extends React.Component {
           hoveredNode={this.state.hoveredNode}
           hoveredNodeWeight={approving.nodes.size + 1} // Assume each node weight is 1
           hoveredNodeScore={approved.nodes.size + 1}
+
+         transactionorder={gettransactionorder({
+              nodes: this.state.nodes,
+              links: this.state.links,
+            })}
+          milestoneNodes={getmilestone({
+                        nodes: this.state.nodes,
+                        links: this.state.links,
+              })}
           tips={getTips({
             nodes: this.state.nodes,
             links: this.state.links,

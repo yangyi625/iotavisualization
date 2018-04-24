@@ -27,6 +27,9 @@
 .approving rect {
   fill: blue;
 }
+.milestone rect {
+    fill : greenyellow;
+  }
 
 .approving text {
   fill: white;

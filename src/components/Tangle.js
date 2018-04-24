@@ -154,7 +154,7 @@ const Tangle = props =>
       <g>
         {props.nodes.map(node =>
           <Tooltip
-            visible={props.hoveredNode === node}
+            visible={props.hoveredNode === node&&!props.milestoneNodes.has(node)}
             key={node.name}
             placement='top'
             overlay={
@@ -164,6 +164,22 @@ const Tangle = props =>
                 </div>
                 <div>
                   Confidence: {node.confidence && node.confidence.toFixed(2)}
+                </div>   
+              </div>}>
+              <Tooltip
+            visible={props.hoveredNode === node&&props.milestoneNodes.has(node)}
+            key={node.name}
+            placement='left'
+            overlay={
+              <div>
+                <div>
+                  Cumulative Weight: {props.hoveredNodeWeight}
+                </div>
+                <div>
+                  Confidence: {node.confidence && node.confidence.toFixed(2)}
+                </div>   
+                <div>
+                  tx order: {props.transactionorder.get(node)}
                 </div>
               </div>}>
             <g transform={`translate(${node.x},${node.y})`} key={node.name}
@@ -179,7 +195,9 @@ const Tangle = props =>
                 <Node nodeRadius={props.nodeRadius*1.3} />
               </g>}
               <g className={`${props.invisibleNodes.includes(node) ? 'invisible ' : ''}` +
-              `${props.approvedNodes.has(node) ? 'approved' :
+              `${
+                props.milestoneNodes.has(node) ? 'milestone':
+                props.approvedNodes.has(node) ? 'approved' :
                 props.approvingNodes.has(node) ? 'approving' :
                   props.tips.has(node) ? 'tip' : ''}`}>
                 <Node
@@ -224,6 +242,7 @@ const Tangle = props =>
                   </text>
                 </g>}
             </g>
+          </Tooltip>
           </Tooltip>)}
       </g>
       <g>

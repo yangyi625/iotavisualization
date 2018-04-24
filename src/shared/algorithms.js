@@ -52,6 +52,106 @@ export const getTips = ({nodes, links}) => {
 
   return new Set(tips);
 };
+export const getmilestone = ({nodes,links}) =>{
+   const milestones = nodes.filter(node=>node.milestone===true);
+   return new Set(milestones); 
+  };
+
+export const gettransactionorder = ({nodes,links})=>{
+   const milestones=nodes.filter(node=>node.milestone===true);
+   const childrenLists = getChildrenLists({nodes, links});
+   const transactionorder=new Map();
+   for(let node of milestones)
+   {
+      
+      const result=buildDFSorder({nodes, links, root:node});
+      //console.log(result);
+      transactionorder.set(node,result);
+   }
+   return transactionorder;
+};
+
+
+
+
+function Node(val){
+  this.value = val;
+  this.left = null;
+  this.right = null;
+}
+function BinaryTree(root){
+  this.value = root;
+}
+
+export const buildDFSorder = ({nodes, links, root}) => {
+  const stack = [root];
+  var result=[];
+  const visitedNodes = new Set();
+  //console.log(root);
+  //const visitedLinks = new Set();
+  const bt = new BinaryTree(root);
+  const stackbinary = [bt];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    let currentNode=stackbinary.pop();
+    //var currentNode= new Node(current);
+    const outgoingEdges = links.filter(l => l.source === current);
+    let link=outgoingEdges;
+    //link.reverse();
+    if(link.length==1)
+    {
+      if (!visitedNodes.has(link[0].target)){
+          currentNode.left=new Node(link[0].target);
+          currentNode=currentNode.left;
+          //bt.pushleft(current,link[0].target);
+          stack.push(link[0].target);
+          stackbinary.push(currentNode);
+          visitedNodes.add(link[0].target);
+      }
+    }else if(link.length==2)
+    {
+      if (!visitedNodes.has(link[1].target)){
+        currentNode.right=new Node(link[1].target);
+        //currentNode=currentNode.right;
+        stack.push(link[1].target);
+        stackbinary.push(currentNode.right);
+        visitedNodes.add(link[1].target);
+      } 
+      if (!visitedNodes.has(link[0].target)){
+        currentNode.left=new Node(link[0].target);
+        //currentNode=currentNode.left;
+        //bt.pushleft(current,link[0].target);
+        stack.push(link[0].target);
+        stackbinary.push(currentNode.left);
+        visitedNodes.add(link[0].target);
+      }
+      
+      
+    }
+
+
+   /* for (let link of outgoingEdges) {
+      if (!visitedNodes.has(link.target)) {
+        stack.push(link.target);
+        visitedNodes.add(link.target);
+        //result.push(link.target);
+      }
+    }*/
+  }
+  //console.log(bt);
+  dfspath(result,bt);
+  console.log(result);
+  //result.reverse();
+  return result;
+};
+
+var dfspath=(result,bt)=>{
+  if(bt){
+    dfspath(result,bt.left);
+    dfspath(result,bt.right);
+    result.push(bt.value.name);
+  }
+}
 
 export const getDirectApprovers = ({links, node}) => {
   return links

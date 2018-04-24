@@ -6,9 +6,7 @@
   "scripts": {
     "dev-server": "webpack-dev-server",
     "test": "jest",
-    "lint": "eslint src",
-    "precommit": "npm run lint",
-    "prepush": "npm test"
+    "lint": "eslint src"
   },
   "keywords": [],
   "author": "Alon Gal <alon@iota.org>",
@@ -28,7 +26,6 @@
     "d3-scale": "^1.0.7",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
-    "husky": "^0.14.3",
     "jStat": "^1.7.1",
     "jest": "^22.1.4",
     "jstat": "^1.7.1",
